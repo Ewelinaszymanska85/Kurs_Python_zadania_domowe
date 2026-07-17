@@ -1,0 +1,37 @@
+Zadanie domowe 1 - Wprowadzenie do Django REST Framework
+Instalacja i konfiguracja
+
+Opis wykonanych kroków
+
+1. Utworzono nowy projekt Django o nazwie "taskmanger":
+
+   django-admin startproject taskmanger
+
+2. Zainstalowano Django REST Framework w wirtualnym środowisku projektu:
+
+   pip install djangorestframework
+
+3. Sprawdzono zainstalowane wersje pakietów (pip list):
+
+   Django              6.0.6
+   djangorestframework 3.17.1
+
+4. Dodano 'rest_framework' do INSTALLED_APPS w pliku
+   taskmanger/settings.py:
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'tasks',
+]
+
+Weryfikacja
+
+Po dodaniu 'rest_framework' do INSTALLED_APPS i uruchomieniu serwera
+(python manage.py runserver), projekt startuje bez błędów, co
+potwierdza poprawną instalację i konfigurację Django REST Framework.

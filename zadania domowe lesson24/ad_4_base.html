@@ -1,0 +1,14 @@
+<!--
+Zadanie domowe 4 - Uwierzytelnianie i Autoryzacja
+Wyświetlanie komunikatów z frameworka messages.
+
+Fragment szablonu bazowego pokazujący pętlę wyświetlającą
+komunikaty (np. o udanej rejestracji) użytkownikowi.
+-->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %} 

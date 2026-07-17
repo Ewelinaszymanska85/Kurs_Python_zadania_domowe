@@ -1,0 +1,36 @@
+Zadanie domowe 4 - Cache w Django REST Framework
+Zabawa z niskopoziomowym API w shellu
+
+Opis wykonanych kroków
+
+1. Uruchomiono Django shell:
+
+   python manage.py shell
+
+2. Zaimportowano obiekt cache:
+
+   from django.core.cache import cache
+
+3. Ustawiono wartość w cache z czasem życia 30 sekund:
+
+   cache.set('my_key', 'hello world', 30)
+
+4. Odczytano wartość natychmiast po ustawieniu:
+
+   cache.get('my_key')
+   -> 'hello world'
+
+5. Odczekano 30 sekund (czas życia klucza), a następnie
+   spróbowano odczytać wartość ponownie:
+
+   print(cache.get('my_key'))
+   -> None
+
+Wniosek
+
+Po upływie czasu określonego jako trzeci argument w cache.set()
+(w tym przypadku 30 sekund), klucz automatycznie wygasa i przestaje
+być dostępny w cache - cache.get() zwraca None zamiast zapisanej
+wcześniej wartości. Potwierdza to, że niskopoziomowe API cache
+(cache.set/cache.get) respektuje ustawiony czas życia (timeout),
+tak samo jak dekorator @cache_page na poziomie widoku.

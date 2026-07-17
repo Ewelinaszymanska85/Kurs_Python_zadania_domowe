@@ -1,0 +1,49 @@
+# Zadanie domowe 7 - Lekcja 24: Uwierzytelnianie i Autoryzacja
+## Przekierowanie po zalogowaniu - mechanizm parametru `next`
+
+### Opis działania
+
+Django automatycznie obsługuje przekierowanie użytkownika z powrotem
+na stronę, z której przyszedł, po udanym zalogowaniu - bez potrzeby
+pisania dodatkowego kodu.
+
+### Jak to działa krok po kroku
+
+1. Niezalogowany użytkownik próbuje wejść na chronioną stronę,
+   np. `/profile/`, zabezpieczoną dekoratorem `@login_required`.
+
+2. Dekorator `@login_required` przekierowuje go na stronę logowania
+   zdefiniowaną w `LOGIN_URL`, automatycznie dołączając parametr
+   `next` w adresie URL:
+
+   http://127.0.0.1:8000/login/?next=/profile/
+
+3. Formularz logowania (`LoginView`) odczytuje ten parametr `next`
+   z adresu URL. Jest on przekazywany jako ukryte pole w formularzu
+   HTML (widoczne w kodzie źródłowym strony logowania).
+
+4. Po poprawnym zalogowaniu, `LoginView` sprawdza, czy w żądaniu
+   był obecny parametr `next`:
+   - Jeśli TAK -> przekierowuje użytkownika dokładnie tam
+     (np. z powrotem na `/profile/`).
+   - Jeśli NIE -> używa domyślnej wartości `LOGIN_REDIRECT_URL`
+     zdefiniowanej w `settings.py` (w naszym projekcie: `'home'`).
+
+### Test przeprowadzony w praktyce
+
+Wchodząc jako niezalogowany użytkownik na `/profile/`, zostałam
+przekierowana na:
+
+    /login/?next=/profile/
+
+Po zalogowaniu, zamiast trafić na stronę główną (`home`, ustawioną
+w `LOGIN_REDIRECT_URL`), zostałam przekierowana z powrotem
+na `/profile/` - dokładnie tam, skąd przyszłam.
+
+### Wniosek
+
+Mechanizm `next` działa "z automatu" dzięki wbudowanym widokom
+Django (`LoginView` oraz dekoratorowi `@login_required`) - nie
+wymaga żadnej dodatkowej konfiguracji w `urls.py` ani `views.py`.
+Priorytet ma zawsze parametr `next`, jeśli jest obecny; dopiero
+w jego braku Django korzysta z `LOGIN_REDIRECT_URL`.

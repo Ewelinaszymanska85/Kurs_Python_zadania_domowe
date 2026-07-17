@@ -1,0 +1,13 @@
+Zadanie domowe 1 - Middleware, JWT i Uwierzytelnianie w DRF
+Analiza Middleware
+
+SessionMiddleware
+Odpowiada za obsługę sesji użytkownika - zapamiętuje go pomiędzy
+kolejnymi zapytaniami HTTP, odczytując identyfikator sesji
+z ciasteczka i udostępniając dane sesji w request.session.
+
+AuthenticationMiddleware
+Dołącza obiekt zalogowanego użytkownika do każdego zapytania
+(request.user), na podstawie danych sesji przygotowanych wcześniej
+przez SessionMiddleware. Dzięki temu w widokach można sprawdzić,
+czy użytkownik jest zalogowany.

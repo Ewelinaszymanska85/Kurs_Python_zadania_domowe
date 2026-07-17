@@ -1,0 +1,42 @@
+Zadanie domowe 5 - Cache w Django REST Framework
+Czyszczenie cache
+
+Wynik researchu w dokumentacji
+
+Django (w swojej podstawowej, wbudowanej wersji) NIE posiada
+gotowej komendy manage.py służącej do czyszczenia całego cache.
+Potwierdza to również istnienie niezależnych, zewnętrznych pakietów
+takich jak django-clear-cache czy django-clearcache, stworzonych
+właśnie po to, aby dodać taką komendę (np. manage.py clear_cache) -
+gdyby Django miało to wbudowane, te pakiety byłyby zbędne.
+
+Standardowym, wbudowanym sposobem na wyczyszczenie całego cache
+jest wywołanie metody cache.clear() poprzez Django shell.
+
+Opis wykonanych kroków
+
+1. Uruchomiono Django shell:
+
+   python manage.py shell
+
+2. Zaimportowano obiekt cache:
+
+   from django.core.cache import cache
+
+3. Wyczyszczono cały cache jedną komendą:
+
+   cache.clear()
+
+4. Zweryfikowano, że cache został wyczyszczony, próbując odczytać
+   klucz zapisany we wcześniejszym zadaniu:
+
+   print(cache.get('my_key'))
+   -> None
+
+Wniosek
+
+cache.clear() usuwa WSZYSTKIE zapisane dane z domyślnego backendu
+cache, niezależnie od tego, ile kluczy zostało wcześniej ustawionych
+i jaki mają czas życia. Jest to przydatne np. po wdrożeniu nowej
+wersji kodu, gdy stare dane w cache mogłyby być niezgodne z nową
+logiką aplikacji.

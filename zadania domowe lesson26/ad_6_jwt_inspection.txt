@@ -1,0 +1,41 @@
+Zadanie domowe 6 - Middleware, JWT i Uwierzytelnianie w DRF
+Logowanie i inspekcja tokenu
+
+Opis wykonanych kroków
+
+1. Wysłano zapytanie POST na endpoint /auth/jwt/create/ z danymi
+   zarejestrowanego wcześniej użytkownika (testowy_user), otrzymując
+   w odpowiedzi dwa tokeny: refresh i access.
+
+2. Skopiowano access token i wklejono go na stronie jwt.io w celu
+   analizy zawartości.
+
+3. Zdekodowana zawartość sekcji "Payload":
+
+{
+    "token_type": "access",
+    "exp": 1783502682,
+    "iat": 1783502384,
+    "jti": "567e0b8ed93e45dd882bd52d5424d9f6",
+    "user_id": "2"
+}
+
+Odpowiedzi na pytania z zadania
+
+Czy widać user_id?
+Tak - "user_id": "2". Token jest przypisany do konkretnego
+użytkownika w bazie danych (ID 2, czyli testowy_user).
+
+Jaki jest czas wygaśnięcia (exp)?
+Wartość exp (1783502682) to moment wygaśnięcia tokenu w formacie
+Unix timestamp. Różnica między exp a iat (czasem wystawienia)
+wynosi dokładnie 5 minut (298 sekund), co potwierdza poprawne
+zadziałanie konfiguracji ACCESS_TOKEN_LIFETIME = timedelta(minutes=5)
+ustawionej w settings.py.
+
+Wniosek
+
+Token JWT jest samowystarczalny - zawiera wszystkie potrzebne
+informacje (kto, kiedy, jak długo) bez potrzeby przechowywania
+stanu sesji po stronie serwera. Serwer weryfikuje jedynie podpis
+tokenu, korzystając z sekretnego klucza.

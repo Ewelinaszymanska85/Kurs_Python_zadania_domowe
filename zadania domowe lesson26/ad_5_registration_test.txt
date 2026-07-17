@@ -1,0 +1,32 @@
+Zadanie domowe 5 - Middleware, JWT i Uwierzytelnianie w DRF
+Rejestracja przez Postman
+
+Opis wykonanych kroków
+
+1. Uruchomiono serwer deweloperski Django:
+
+   python manage.py runserver
+
+2. W Postmanie wysłano zapytanie POST na endpoint
+   http://127.0.0.1:8000/auth/users/ z danymi nowego użytkownika
+   (Body -> raw -> JSON):
+
+{
+    "username": "testowy_user",
+    "password": "BardzoTrudneHaslo123",
+    "email": "test@example.com"
+}
+
+3. Otrzymano odpowiedź HTTP 201 Created z danymi nowo
+   utworzonego użytkownika (bez hasła w odpowiedzi - Djoser
+   ukrywa je ze względów bezpieczeństwa).
+
+4. Zweryfikowano w panelu admina Django (http://127.0.0.1:8000/admin/),
+   w sekcji Users, że użytkownik "testowy_user" faktycznie
+   został utworzony w bazie danych.
+
+Wniosek
+
+Djoser automatycznie obsługuje pełen proces rejestracji - walidację
+danych, hashowanie hasła i zapis użytkownika w bazie - bez potrzeby
+pisania własnego widoku czy serializatora.

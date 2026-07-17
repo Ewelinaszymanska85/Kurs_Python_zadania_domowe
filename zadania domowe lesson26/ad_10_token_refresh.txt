@@ -1,0 +1,44 @@
+Zadanie domowe 10 - Middleware, JWT i Uwierzytelnianie w DRF
+Odświeżanie tokenu
+
+Opis wykonanych kroków
+
+1. Zalogowano się (POST /auth/jwt/create/) i otrzymano parę
+   tokenów: refresh i access.
+
+2. Wysłano zapytanie POST na endpoint /auth/jwt/refresh/
+   z ciałem zawierającym refresh token:
+
+{
+    "refresh": "<refresh_token>"
+}
+
+3. Otrzymano odpowiedź HTTP 200 OK z nowym access tokenem:
+
+{
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+4. Sprawdzono, czy nowy access token działa poprawnie, wysyłając
+   zapytanie GET na chroniony endpoint /api/protected/
+   z nowym tokenem w nagłówku Authorization: Bearer <token>.
+
+   Otrzymana odpowiedź: HTTP 200 OK
+   {"message": "Witaj, testowy_user!"}
+
+Napotkany problem i rozwiązanie
+
+Pierwsza próba wysłania zapytania zwróciła błąd 415 Unsupported
+Media Type, ponieważ w zakładce Body w Postmanie typ danych był
+ustawiony na "Text" zamiast "JSON". Rozwiązaniem było zmienienie
+formatu w rozwijanej liście obok opcji "raw" na "JSON".
+
+Wniosek
+
+Mechanizm odświeżania tokenów (refresh token) pozwala uzyskać
+nowy, ważny access token bez konieczności ponownego logowania
+się nazwą użytkownika i hasłem. Jest to kluczowe dla dobrego
+doświadczenia użytkownika w aplikacjach z krótkim czasem życia
+access tokenu - użytkownik pozostaje zalogowany "w tle", dopóki
+jego refresh token (o znacznie dłuższym czasie życia) pozostaje
+ważny.

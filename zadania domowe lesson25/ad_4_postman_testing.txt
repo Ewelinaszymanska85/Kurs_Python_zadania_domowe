@@ -1,0 +1,47 @@
+Zadanie domowe 4 - Wprowadzenie do Django REST Framework
+Testowanie w Postmanie
+
+Opis wykonanych kroków
+
+1. Zainstalowano aplikację Postman (https://www.postman.com/downloads/).
+
+2. Uruchomiono serwer deweloperski Django:
+
+   python manage.py runserver
+
+3. W Postmanie wysłano 3 zapytania POST na endpoint
+   http://127.0.0.1:8000/api/products/, każde z innym produktem
+   w formacie JSON (Body -> raw -> JSON), np.:
+
+{
+    "name": "Laptop Dell",
+    "price": 3500.00
+}
+
+   Każde zapytanie zwróciło odpowiedź HTTP 201 Created wraz
+   z nowo utworzonym obiektem, zawierającym automatycznie
+   nadane pole "id", np.:
+
+{
+    "id": 1,
+    "name": "Laptop Dell",
+    "price": "3500.00"
+}
+
+   Dodano w ten sposób 3 produkty:
+   - Laptop Dell - 3500.00
+   - Mysz bezprzewodowa - 89.99
+   - Klawiatura mechaniczna - 249.50
+
+4. Wysłano zapytanie GET na ten sam endpoint
+   (http://127.0.0.1:8000/api/products/), które zwróciło
+   odpowiedź HTTP 200 OK z listą wszystkich 3 dodanych
+   produktów w formacie JSON.
+
+Wniosek
+
+Postman pozwala na łatwe testowanie wszystkich typów zapytań HTTP
+(GET, POST, PUT, DELETE) bez potrzeby pisania dodatkowego kodu
+czy korzystania z przeglądarki - co jest szczególnie przydatne
+przy zapytaniach innych niż GET, których przeglądarka nie
+wysyła bezpośrednio z paska adresu. 

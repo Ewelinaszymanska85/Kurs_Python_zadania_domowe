@@ -1,0 +1,41 @@
+Zadanie domowe 9 - Middleware, JWT i Uwierzytelnianie w DRF
+Konfiguracja czasu życia tokenu
+
+Opis wykonanych kroków
+
+1. Zmieniono konfigurację SIMPLE_JWT w settings.py:
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+2. Zalogowano się ponownie (POST /auth/jwt/create/), otrzymując
+   nowy access token z 10-sekundowym czasem życia.
+
+3. Odczekano ponad 10 sekund, a następnie wysłano zapytanie
+   GET na chroniony endpoint /api/protected/ z tym samym,
+   już wygasłym tokenem w nagłówku Authorization.
+
+4. Otrzymana odpowiedź: HTTP 401 Unauthorized
+
+{
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+        {
+            "token_class": "AccessToken",
+            "token_type": "access",
+            "message": "Token is expired"
+        }
+    ]
+}
+
+Wniosek
+
+Po upływie czasu określonego w ACCESS_TOKEN_LIFETIME, token
+przestaje być ważny i serwer automatycznie go odrzuca z kodem
+401 oraz jasnym komunikatem "Token is expired". Potwierdza to
+poprawne działanie mechanizmu wygasania tokenów JWT - serwer
+nie musi nic "pamiętać" o sesji, wystarczy że zweryfikuje
+znacznik czasu (exp) zapisany wewnątrz samego tokenu.
