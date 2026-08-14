@@ -1,0 +1,113 @@
+
+Multi-stage Dockerfile
+
+============================================================
+DOCKERFILE.MULTISTAGE (pełna zawartość)
+============================================================
+
+# ETAP 1: "builder" - budowanie zależności
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+# ETAP 2: "final" - finalny, odchudzony obraz produkcyjny
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install /usr/local
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+
+============================================================
+KOMENDY UŻYTE DO BUDOWANIA I PORÓWNANIA
+============================================================
+
+docker build -t lesson-docker-single -f Dockerfile .
+docker build -t lesson-docker-multistage -f Dockerfile.multistage .
+docker images
+
+============================================================
+WYNIKI PORÓWNANIA ROZMIARÓW
+============================================================
+
+lesson-docker-single (jednoetapowy):      285 MB (disk) / 62.4 MB (content)
+lesson-docker-multistage (dwuetapowy):    277 MB (disk) / 60.3 MB (content)
+
+Obraz multi-stage jest mniejszy, mimo że zawiera tę samą aplikację
+i te same zależności Pythona.
+
+============================================================
+WYJAŚNIENIE KLUCZOWYCH ELEMENTÓW
+============================================================
+
+- "AS builder" nadaje nazwę pierwszemu etapowi, umożliwiając
+  odwołanie się do niego w kolejnym etapie.
+
+- Etap "builder" instaluje gcc oraz libpq-dev (nagłówki
+  deweloperskie PostgreSQL) - narzędzia potrzebne WYŁĄCZNIE
+  do skompilowania pakietu psycopg2 podczas instalacji przez pip.
+
+- "--prefix=/install" instaluje pakiety Pythona do osobnego,
+  izolowanego katalogu, ułatwiając ich późniejsze skopiowanie.
+
+- "COPY --from=builder /install /usr/local" to kluczowy mechanizm
+  multi-stage build - kopiuje TYLKO gotowe, skompilowane pliki
+  pakietów z pierwszego etapu, pomijając kompilator gcc i pliki
+  tymczasowe, które w drugim etapie NIGDY nie istnieją.
+
+- Finalny etap instaluje tylko libpq5 (biblioteka RUNTIME,
+  potrzebna do połączenia z PostgreSQL w czasie działania
+  aplikacji) zamiast libpq-dev (pełny zestaw deweloperski
+  z nagłówkami C, niepotrzebny po zakończeniu kompilacji).
+
+============================================================
+ZALETY MULTI-STAGE BUILD
+============================================================
+
+1. Mniejszy rozmiar obrazu - finalny obraz nie zawiera
+   kompilatorów ani narzędzi budujących.
+
+2. Większe bezpieczeństwo - mniej zainstalowanych narzędzi
+   systemowych w obrazie produkcyjnym oznacza mniejszą
+   powierzchnię ataku (np. brak gcc, którego atakujący mógłby
+   potencjalnie nadużyć, gdyby uzyskał dostęp do kontenera).
+
+3. Brak zbędnych narzędzi kompilacyjnych w finalnym obrazie -
+   czystszy, bardziej przejrzysty obraz produkcyjny.
+
+4. Szybsze wdrażanie aplikacji - mniejszy obraz oznacza szybsze
+   pobieranie (docker pull) i przesyłanie (docker push) między
+   serwerem CI/CD a środowiskiem produkcyjnym.
+
+Wniosek
+
+Multi-stage build pozwala oddzielić etap KOMPILACJI zależności
+(wymagający cięższych narzędzi systemowych) od etapu URUCHOMIENIA
+aplikacji (wymagającego tylko gotowych, skompilowanych plików).
+Nawet przy stosunkowo niewielkiej różnicy w tym konkretnym
+przypadku (~8 MB), zasada ta staje się znacznie bardziej znacząca
+przy projektach z cięższymi zależnościami kompilacyjnymi
+(np. bibliotekami do przetwarzania obrazów, uczenia maszynowego
+czy kompilacji natywnych rozszerzeń C/C++).
