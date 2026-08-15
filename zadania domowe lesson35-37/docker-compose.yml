@@ -1,0 +1,72 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:16
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  # Worker 1: obsługuje kolejkę "default" (ogólne, drobne zadania)
+  celery_worker_default:
+    build: .
+    command: celery -A core worker -l INFO -Q default -n worker_default@%h
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  # Worker 2: obsługuje osobną kolejkę "rss" (pobieranie kanałów RSS -
+  # oddzielona, żeby ciężkie/wolne zadania pobierania nie blokowały
+  # innych, drobniejszych zadań w tle)
+  celery_worker_rss:
+    build: .
+    command: celery -A core worker -l INFO -Q rss -n worker_rss@%h
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  celery_beat:
+    build: .
+    command: celery -A core beat -l INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+volumes:
+  postgres_data: 
+  
