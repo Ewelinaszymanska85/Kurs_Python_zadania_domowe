@@ -1,0 +1,121 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 19 - Integration z AWS
+
+Cel zadania:
+Przygotowanie workflow GitHub Actions do wdrażania
+aplikacji Docker do AWS z wykorzystaniem ECR i ECS.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_19_aws_integration.yml
+
+2. Workflow uruchamiany jest ręcznie przez:
+
+   workflow_dispatch
+
+3. Zdefiniowałam zmienne środowiskowe:
+
+   AWS_REGION
+   ECR_REPOSITORY
+   ECS_CLUSTER
+   ECS_SERVICE
+   ECS_TASK_DEFINITION
+   CONTAINER_NAME
+
+4. Dane dostępowe AWS są pobierane z GitHub Secrets:
+
+   AWS_ACCESS_KEY_ID
+   AWS_SECRET_ACCESS_KEY
+
+5. Do konfiguracji połączenia z AWS użyłam:
+
+   aws-actions/configure-aws-credentials
+
+6. Następnie workflow loguje się do Amazon ECR za pomocą:
+
+   aws-actions/amazon-ecr-login
+
+7. Docker image jest budowany poleceniem:
+
+   docker build
+
+8. Obraz otrzymuje tag oparty na:
+
+   github.sha
+
+9. Następnie obraz wysyłany jest do Amazon ECR:
+
+   docker push
+
+10. Utworzyłam plik:
+
+    aws-task-definition.json
+
+11. Plik definiuje kontener uruchamiany przez Amazon ECS.
+
+12. Do aktualizacji obrazu w task definition użyłam:
+
+    aws-actions/amazon-ecs-render-task-definition
+
+13. Do wdrożenia aplikacji wykorzystałam:
+
+    aws-actions/amazon-ecs-deploy-task-definition
+
+14. Workflow działa według schematu:
+
+    GitHub Actions
+        ↓
+    AWS Credentials
+        ↓
+    Amazon ECR Login
+        ↓
+    Docker Build
+        ↓
+    Docker Push
+        ↓
+    ECS Task Definition
+        ↓
+    ECS Deploy
+
+Rezultat:
+
+Container Registry:
+Amazon ECR
+
+Orkiestracja kontenerów:
+Amazon ECS
+
+Build:
+Docker
+
+Credentials:
+GitHub Secrets
+
+Wnioski:
+
+GitHub Actions może automatycznie integrować się
+z usługami AWS i realizować pełny proces wdrażania
+aplikacji kontenerowej.
+
+W praktycznym środowisku wymagane są prawidłowo
+skonfigurowane zasoby AWS, uprawnienia IAM,
+repozytorium ECR, cluster ECS i service ECS.
+
+Przećwiczone elementy:
+- AWS,
+- ECR,
+- ECS,
+- Docker,
+- GitHub Secrets,
+- configure-aws-credentials,
+- amazon-ecr-login,
+- task definition,
+- deploy,
+- CI/CD.

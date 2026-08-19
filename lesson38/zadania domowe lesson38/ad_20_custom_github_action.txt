@@ -1,0 +1,116 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 20 - Custom GitHub Action
+
+Cel zadania:
+Stworzenie własnej akcji GitHub, która uruchamia testy,
+oblicza coverage i generuje badge z pokryciem kodu.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/actions/
+
+   utworzyłam katalog:
+
+   my-action
+
+2. W katalogu utworzyłam plik:
+
+   action.yml
+
+3. Akcja została przygotowana jako:
+
+   composite action
+
+4. W sekcji:
+
+   runs:
+     using: "composite"
+
+   określiłam typ własnej akcji.
+
+5. Custom Action wykonuje kilka kroków.
+
+6. Najpierw instalowane są:
+
+   pytest
+   pytest-cov
+   coverage-badge
+
+7. Następnie uruchamiane są testy:
+
+   pytest tests/ --cov=. --cov-report=term
+
+8. Coverage zapisywany jest również do pliku XML:
+
+   coverage xml
+
+9. Badge generowany jest poleceniem:
+
+   coverage-badge -o coverage.svg -f
+
+10. W folderze:
+
+    .github/workflows/
+
+    utworzyłam workflow:
+
+    ad_20_custom_action.yml
+
+11. Workflow pobiera kod repozytorium.
+
+12. Konfiguruje Python 3.11.
+
+13. Następnie uruchamia własną akcję:
+
+    uses: ./.github/actions/my-action
+
+14. Własna akcja wykonuje testy oraz generuje:
+
+    coverage.svg
+
+15. Badge jest następnie zapisywany jako artifact
+    GitHub Actions.
+
+16. Do zapisania artifact wykorzystałam:
+
+    actions/upload-artifact@v4
+
+Rezultat:
+
+Custom Action:
+.github/actions/my-action/action.yml
+
+Testy:
+pytest
+
+Coverage:
+pytest-cov
+
+Badge:
+coverage.svg
+
+Artifact:
+coverage-badge
+
+Wnioski:
+
+Custom GitHub Actions pozwalają wydzielać powtarzalne
+fragmenty workflow do osobnych, reużywalnych akcji.
+
+Composite Action może łączyć kilka kroków w jeden
+element używany później w różnych workflow.
+
+Przećwiczone elementy:
+- Custom GitHub Action,
+- action.yml,
+- composite action,
+- pytest,
+- pytest-cov,
+- coverage,
+- coverage-badge,
+- lokalne actions,
+- artifacts,
+- GitHub Actions.

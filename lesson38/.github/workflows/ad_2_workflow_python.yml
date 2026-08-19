@@ -1,0 +1,27 @@
+# Workflow z Pythonem
+# Konfiguruje Python 3.11 i uruchamia plik ad_2_hello.py.
+
+name: Zadanie 2 - Python 3.11
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod repozytorium
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Sprawdz wersje Pythona
+        run: python --version
+
+      - name: Uruchom program
+        run: python ad_2_hello.py"

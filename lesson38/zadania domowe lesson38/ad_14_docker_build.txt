@@ -1,0 +1,85 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 14 - Docker Build w GitHub Actions
+
+Cel zadania:
+Stworzenie workflow, który buduje Docker image aplikacji,
+uruchamia testy w kontenerze oraz wysyła obraz do
+GitHub Container Registry (GHCR).
+
+Wykonanie:
+
+1. W folderze .github/workflows utworzyłam:
+
+   ad_14_docker_build.yml
+
+2. Workflow uruchamia się po push do main oraz ręcznie.
+
+3. Dodałam uprawnienia:
+
+   contents: read
+   packages: write
+
+4. Kod pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+5. Logowanie do GitHub Container Registry wykonuje:
+
+   docker/login-action@v3
+
+6. Jako dane logowania wykorzystałam:
+
+   github.actor
+   secrets.GITHUB_TOKEN
+
+7. Obraz Docker budowany jest poleceniem:
+
+   docker build
+
+8. Obraz otrzymuje nazwę:
+
+   ghcr.io/<owner>/lekcja38-app:latest
+
+9. Następnie testy pytest uruchamiane są
+   bezpośrednio wewnątrz kontenera.
+
+10. Po poprawnym wykonaniu testów obraz jest
+    wysyłany do GitHub Container Registry:
+
+    docker push
+
+11. Workflow wykorzystuje Dockerfile utworzony
+    wcześniej w głównym katalogu projektu.
+
+Rezultat:
+
+Build:
+Docker image
+
+Test:
+pytest uruchomiony w kontenerze
+
+Registry:
+GitHub Container Registry (GHCR)
+
+Tag:
+latest
+
+Wnioski:
+
+GitHub Actions może automatycznie budować obrazy Docker,
+testować aplikację wewnątrz kontenera oraz publikować
+gotowe obrazy w rejestrze kontenerów.
+
+Przećwiczone elementy:
+- Docker,
+- Dockerfile,
+- docker build,
+- docker run,
+- docker push,
+- GHCR,
+- GITHUB_TOKEN,
+- permissions,
+- docker/login-action,
+- GitHub Actions.

@@ -1,0 +1,36 @@
+# Matrix Strategy
+# Uruchamia testy równolegle na Pythonie 3.9, 3.10 i 3.11.
+
+name: Zadanie 6 - Matrix Strategy
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - name: Pobierz kod repozytorium
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Zainstaluj dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Sprawdz wersje Pythona
+        run: python --version
+
+      - name: Uruchom testy
+        run: pytest tests/ -v

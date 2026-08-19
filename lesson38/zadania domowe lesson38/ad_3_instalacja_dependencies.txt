@@ -1,0 +1,85 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 3 - Instalacja Dependencies
+
+Cel zadania:
+Dodanie pliku requirements.txt oraz workflow GitHub Actions,
+który automatycznie instaluje wymagane zależności projektu.
+
+Wykonanie:
+
+1. Utworzyłam plik:
+
+   requirements.txt
+
+2. Dodałam do niego wymagane pakiety:
+
+   requests
+   pytest
+
+3. Lokalnie zainstalowałam zależności poleceniem:
+
+   pip install -r requirements.txt
+
+4. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_3_dependencies.yml
+
+5. Workflow konfiguruje środowisko Python 3.11.
+
+6. Do pobrania kodu repozytorium wykorzystałam:
+
+   actions/checkout@v4
+
+7. Do konfiguracji Pythona wykorzystałam:
+
+   actions/setup-python@v5
+
+8. Przed instalacją zależności aktualizowany jest pip:
+
+   python -m pip install --upgrade pip
+
+9. Pakiety są instalowane z requirements.txt:
+
+   pip install -r requirements.txt
+
+10. Dodałam również krok:
+
+    pip list
+
+    który pozwala sprawdzić w logach GitHub Actions,
+    czy requests i pytest zostały prawidłowo zainstalowane.
+
+11. Zmiany wysłałam do repozytorium:
+
+    git add .
+    git commit -m "Add dependencies workflow"
+    git push
+
+Rezultat:
+
+GitHub Actions:
+Zadanie 3 - Dependencies
+
+Python:
+3.11
+
+Zależności:
+requests
+pytest
+
+Workflow automatycznie instaluje wszystkie pakiety
+zdefiniowane w requirements.txt.
+
+Przećwiczone elementy:
+- requirements.txt,
+- pip,
+- instalacja dependencies,
+- actions/checkout,
+- actions/setup-python,
+- GitHub Actions,
+- automatyzacja konfiguracji środowiska.

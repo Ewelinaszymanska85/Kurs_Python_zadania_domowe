@@ -1,0 +1,117 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 4 - Pierwszy Test
+
+Cel zadania:
+Utworzenie prostego testu jednostkowego przy użyciu pytest
+oraz skonfigurowanie GitHub Actions tak, aby test był
+automatycznie uruchamiany w pipeline CI.
+
+Wykonanie:
+
+1. Utworzyłam folder:
+
+   tests
+
+2. W folderze tests utworzyłam plik:
+
+   test_math.py
+
+3. W pliku utworzyłam test:
+
+   def test_addition():
+       assert 2 + 2 == 4
+
+4. Test sprawdza, czy wynik działania:
+
+   2 + 2
+
+   jest równy:
+
+   4
+
+5. Do wykonania testu wykorzystałam framework:
+
+   pytest
+
+6. Lokalnie uruchomiłam test poleceniem:
+
+   pytest tests/ -v
+
+7. Poprawne wykonanie testu daje rezultat:
+
+   tests/test_math.py::test_addition PASSED
+
+   1 passed
+
+8. W folderze:
+
+   .github/workflows/
+
+   utworzyłam workflow:
+
+   ad_4_pierwszy_test.yml
+
+9. Workflow wykorzystuje:
+
+   actions/checkout@v4
+
+   do pobrania kodu repozytorium.
+
+10. Środowisko Python 3.11 jest konfigurowane za pomocą:
+
+    actions/setup-python@v5
+
+11. Następnie workflow aktualizuje pip i instaluje
+    zależności z pliku requirements.txt:
+
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+
+12. Testy są automatycznie uruchamiane poleceniem:
+
+    pytest tests/ -v
+
+13. Dzięki temu każda zmiana wysłana do repozytorium
+    może zostać automatycznie sprawdzona przez pytest.
+
+14. Zmiany wysłałam do GitHub za pomocą:
+
+    git add .
+    git commit -m "Add first pytest workflow"
+    git push
+
+Rezultat:
+
+Test:
+test_addition
+
+Framework:
+pytest
+
+Oczekiwany wynik:
+PASSED
+
+Workflow:
+Zadanie 4 - Pytest
+
+Python:
+3.11
+
+Wnioski:
+
+Zadanie pokazuje podstawową ideę Continuous Integration.
+Po wysłaniu zmian GitHub Actions może automatycznie uruchomić
+testy i sprawdzić, czy kod nadal działa prawidłowo.
+
+Przećwiczone elementy:
+- pytest,
+- test jednostkowy,
+- assert,
+- folder tests,
+- automatyczne testowanie,
+- GitHub Actions,
+- actions/checkout,
+- actions/setup-python,
+- requirements.txt,
+- pipeline CI.

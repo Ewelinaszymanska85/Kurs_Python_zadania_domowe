@@ -1,0 +1,117 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 13 - Full CI/CD Pipeline
+
+Cel zadania:
+Stworzenie kompletnego pipeline CI/CD składającego się
+z czterech etapów: lint, test, build oraz deploy.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_13_full_cicd.yml
+
+2. Pipeline składa się z czterech jobów:
+
+   lint
+   test
+   build
+   deploy
+
+3. Job lint:
+
+   - pobiera kod,
+   - konfiguruje Python 3.11,
+   - instaluje flake8 i black,
+   - sprawdza jakość kodu.
+
+4. Flake8 uruchamiany jest poleceniem:
+
+   flake8 . --max-line-length=88 --exclude=venv
+
+5. Black sprawdza formatowanie:
+
+   black --check . --exclude "venv"
+
+6. Job test zależy od joba lint:
+
+   needs: lint
+
+7. Testy uruchamiane są za pomocą pytest
+   wraz z raportem coverage:
+
+   pytest tests/ -v --cov=. --cov-report=term
+
+8. Job build zależy od test:
+
+   needs: test
+
+9. W etapie build tworzony jest Docker image:
+
+   docker build -t lekcja38-app .
+
+10. Do budowania obrazu utworzyłam plik:
+
+    Dockerfile
+
+11. Dockerfile wykorzystuje obraz:
+
+    python:3.11-slim
+
+12. Job deploy zależy od build:
+
+    needs: build
+
+13. Deploy jest symulowany poleceniem:
+
+    echo "Deploying..."
+
+14. Cały pipeline działa zgodnie z zależnościami:
+
+    lint
+      ↓
+    test
+      ↓
+    build
+      ↓
+    deploy
+
+Rezultat:
+
+Stage 1:
+Lint - flake8 i black
+
+Stage 2:
+Test - pytest + coverage
+
+Stage 3:
+Build - Docker image
+
+Stage 4:
+Deploy - symulacja wdrożenia
+
+Wnioski:
+
+Pełny pipeline CI/CD automatyzuje kontrolę jakości,
+testowanie, budowanie oraz wdrażanie aplikacji.
+
+Mechanizm needs zapewnia, że kolejny etap uruchamia się
+dopiero po poprawnym zakończeniu poprzedniego.
+
+Przećwiczone elementy:
+- CI/CD pipeline,
+- flake8,
+- black,
+- pytest,
+- coverage,
+- Docker,
+- Dockerfile,
+- needs,
+- build,
+- deploy,
+- GitHub Actions.

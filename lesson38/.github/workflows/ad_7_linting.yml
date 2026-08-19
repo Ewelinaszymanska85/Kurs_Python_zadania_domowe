@@ -1,0 +1,29 @@
+# Linting
+# Sprawdza jakość kodu Python za pomocą flake8.
+
+name: Zadanie 7 - Linting
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod repozytorium
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Zainstaluj dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Sprawdz kod za pomoca flake8
+        run: flake8 . --max-line-length=88 --exclude=venv

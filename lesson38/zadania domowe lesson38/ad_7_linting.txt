@@ -1,0 +1,86 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 7 - Linting
+
+Cel zadania:
+Dodanie automatycznej kontroli jakości kodu Python za pomocą
+narzędzia flake8 i GitHub Actions.
+
+Wykonanie:
+
+1. Do pliku requirements.txt dodałam:
+
+   flake8
+
+2. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_7_linting.yml
+
+3. Workflow uruchamia się po wykonaniu push oraz może
+   zostać uruchomiony ręcznie.
+
+4. Kod repozytorium pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+5. Konfigurowane jest środowisko:
+
+   Python 3.11
+
+6. Następnie instalowane są zależności:
+
+   pip install -r requirements.txt
+
+7. Kontrola jakości kodu wykonywana jest poleceniem:
+
+   flake8 . --max-line-length=88 --exclude=venv
+
+8. Parametr:
+
+   --max-line-length=88
+
+   ustawia maksymalną długość linii kodu.
+
+9. Parametr:
+
+   --exclude=venv
+
+   powoduje pominięcie lokalnego środowiska wirtualnego.
+
+10. Flake8 sprawdza kod pod kątem m.in.:
+
+    - błędów składni,
+    - nieużywanych importów,
+    - niepoprawnego formatowania,
+    - naruszeń zasad stylu PEP 8.
+
+Rezultat:
+
+Workflow:
+Zadanie 7 - Linting
+
+Narzędzie:
+flake8
+
+Python:
+3.11
+
+Kod jest automatycznie sprawdzany podczas działania
+GitHub Actions.
+
+Wnioski:
+
+Linting pozwala automatycznie kontrolować jakość i styl kodu
+jeszcze przed wdrożeniem aplikacji.
+
+Przećwiczone elementy:
+- flake8,
+- linting,
+- PEP 8,
+- requirements.txt,
+- GitHub Actions,
+- automatyczna kontrola jakości kodu.

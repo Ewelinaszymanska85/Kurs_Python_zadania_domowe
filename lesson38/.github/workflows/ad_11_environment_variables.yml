@@ -1,0 +1,31 @@
+# Environment Variables
+# Pokazuje użycie zmiennych globalnych i lokalnych w GitHub Actions.
+
+name: Zadanie 11 - Environment Variables
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  APP_NAME: "Lekcja38-CICD"
+  ENVIRONMENT: "test"
+
+jobs:
+  show-variables:
+    runs-on: ubuntu-latest
+
+    env:
+      JOB_MESSAGE: "Zmienna lokalna dla joba"
+
+    steps:
+      - name: Wyswietl zmienne globalne
+        run: |
+          echo "APP_NAME=$APP_NAME"
+          echo "ENVIRONMENT=$ENVIRONMENT"
+
+      - name: Wyswietl zmienna lokalna
+        run: |
+          echo "JOB_MESSAGE=$JOB_MESSAGE"

@@ -1,0 +1,92 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 5 - Cache Dependencies
+
+Cel zadania:
+Dodanie mechanizmu cache dla zależności pip, aby przyspieszyć
+kolejne uruchomienia workflow GitHub Actions.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_5_cache_dependencies.yml
+
+2. Workflow pobiera kod repozytorium za pomocą:
+
+   actions/checkout@v4
+
+3. Następnie konfiguruje środowisko Python 3.11:
+
+   actions/setup-python@v5
+
+4. Dodałam mechanizm cache dla pakietów pip:
+
+   actions/cache@v4
+
+5. Cache przechowuje pliki z katalogu:
+
+   ~/.cache/pip
+
+6. Klucz cache został utworzony na podstawie systemu
+   operacyjnego oraz zawartości requirements.txt:
+
+   key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+7. Dzięki hashFiles zmiana requirements.txt powoduje
+   utworzenie nowego cache.
+
+8. Dodałam również restore-keys, który pozwala GitHub
+   Actions wykorzystać wcześniejszy cache:
+
+   restore-keys: |
+     ${{ runner.os }}-pip-
+
+9. Następnie instalowane są zależności:
+
+   python -m pip install --upgrade pip
+   pip install -r requirements.txt
+
+10. Na końcu workflow uruchamia testy:
+
+    pytest tests/ -v
+
+11. Przy pierwszym wykonaniu workflow cache może jeszcze
+    nie istnieć i zostanie utworzony.
+
+12. Przy kolejnych uruchomieniach GitHub Actions może
+    wykorzystać zapisany cache, dzięki czemu instalacja
+    zależności jest szybsza.
+
+Rezultat:
+
+Workflow:
+Zadanie 5 - Cache Dependencies
+
+Python:
+3.11
+
+Cache:
+pip dependencies
+
+Testy:
+pytest tests/ -v
+
+Wnioski:
+
+Cache pozwala ograniczyć czas potrzebny na ponowne pobieranie
+tych samych zależności podczas kolejnych uruchomień pipeline.
+
+Przećwiczone elementy:
+- actions/cache,
+- pip cache,
+- hashFiles,
+- restore-keys,
+- requirements.txt,
+- GitHub Actions,
+- optymalizacja pipeline,
+- pytest.

@@ -1,0 +1,95 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 10 - Artifacts
+
+Cel zadania:
+Zmodyfikowanie workflow tak, aby wyniki testów pytest
+zostały zapisane jako artifact w GitHub Actions.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_10_artifacts.yml
+
+2. Workflow uruchamia się po push do gałęzi main
+   oraz może zostać uruchomiony ręcznie.
+
+3. Kod repozytorium pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+4. Konfigurowane jest środowisko:
+
+   Python 3.11
+
+5. Następnie instalowane są zależności projektu:
+
+   pip install -r requirements.txt
+
+6. Workflow tworzy katalog:
+
+   test-results
+
+7. Testy pytest uruchamiane są poleceniem:
+
+   pytest tests/ -v --junitxml=test-results/results.xml
+
+8. Parametr --junitxml powoduje utworzenie raportu
+   z wynikami testów w formacie XML.
+
+9. Raport zapisywany jest jako:
+
+   test-results/results.xml
+
+10. Następnie wykorzystałam:
+
+    actions/upload-artifact@v4
+
+11. Artifact otrzymał nazwę:
+
+    test-results
+
+12. Dodałam:
+
+    if: always()
+
+    dzięki czemu krok odpowiedzialny za zapisanie raportu
+    może zostać wykonany również wtedy, gdy testy zakończą
+    się niepowodzeniem.
+
+13. Po wykonaniu workflow artifact można znaleźć
+    w szczegółach uruchomienia GitHub Actions.
+
+Rezultat:
+
+Workflow:
+Zadanie 10 - Artifacts
+
+Testy:
+pytest
+
+Raport:
+test-results/results.xml
+
+Artifact:
+test-results
+
+Wnioski:
+
+Artifacts pozwalają zachowywać pliki wygenerowane podczas
+wykonywania pipeline, np. raporty testów, logi lub wyniki
+budowania aplikacji.
+
+Przećwiczone elementy:
+- pytest,
+- JUnit XML,
+- artifacts,
+- actions/upload-artifact,
+- if: always(),
+- GitHub Actions,
+- przechowywanie wyników testów.

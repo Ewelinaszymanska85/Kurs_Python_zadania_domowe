@@ -1,0 +1,74 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 11 - Environment Variables
+
+Cel zadania:
+Stworzenie workflow wykorzystującego zmienne środowiskowe
+na poziomie całego workflow oraz konkretnego joba.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_11_environment_variables.yml
+
+2. Na poziomie całego workflow zdefiniowałam zmienne:
+
+   APP_NAME
+   ENVIRONMENT
+
+3. Zmienne globalne zostały zapisane w sekcji:
+
+   env:
+
+4. Przykład:
+
+   APP_NAME: "Lekcja38-CICD"
+   ENVIRONMENT: "test"
+
+5. Następnie w konkretnym jobie zdefiniowałam
+   zmienną lokalną:
+
+   JOB_MESSAGE
+
+6. Zmienna lokalna jest dostępna tylko w obrębie
+   tego joba.
+
+7. W krokach workflow wyświetliłam wartości zmiennych
+   za pomocą polecenia echo.
+
+8. Zmienne globalne są dostępne dla całego workflow.
+
+9. Zmienne lokalne dla joba są dostępne tylko
+   dla kroków wykonywanych w tym jobie.
+
+Rezultat:
+
+Zmienne globalne:
+APP_NAME=Lekcja38-CICD
+ENVIRONMENT=test
+
+Zmienna lokalna:
+JOB_MESSAGE=Zmienna lokalna dla joba
+
+Wnioski:
+
+Environment Variables pozwalają przechowywać wartości
+konfiguracyjne bez powtarzania ich w wielu miejscach workflow.
+
+Zmienne globalne mogą być używane w wielu jobach,
+natomiast zmienne lokalne mogą być ograniczone
+do wybranego joba.
+
+Przećwiczone elementy:
+- env,
+- globalne zmienne środowiskowe,
+- lokalne zmienne dla joba,
+- GitHub Actions,
+- run,
+- echo,
+- konfiguracja workflow.

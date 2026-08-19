@@ -1,0 +1,41 @@
+# Docker Build w GitHub Actions
+# Buduje obraz, uruchamia testy i wysyla obraz do GHCR.
+
+name: Zadanie 14 - Docker Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/ewelinaszymanska85/lekcja38-app:latest
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v4
+
+      - name: Zaloguj do GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Zbuduj Docker image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Uruchom testy w kontenerze
+        run: docker run --rm $IMAGE_NAME pytest tests/ -v
+
+      - name: Wyslij image do GHCR
+        run: docker push $IMAGE_NAME

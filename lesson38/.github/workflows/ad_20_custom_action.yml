@@ -1,0 +1,32 @@
+# Custom GitHub Action
+# Uzywa lokalnej composite action do testow i coverage.
+
+name: Zadanie 20 - Custom Action
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  custom-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Uruchom wlasna akcje
+        uses: ./.github/actions/my-action
+
+      - name: Zapisz coverage badge jako artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: coverage.svg

@@ -1,0 +1,87 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 12 - Conditional Steps
+
+Cel zadania:
+Dodanie warunkowego kroku do workflow GitHub Actions.
+Krok powinien wykonać się tylko wtedy, gdy workflow działa
+na branchu main oraz wcześniejsze kroki zakończą się sukcesem.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_12_conditional_steps.yml
+
+2. Workflow uruchamia się po push do brancha:
+
+   main
+
+3. Workflow można również uruchomić ręcznie za pomocą:
+
+   workflow_dispatch
+
+4. Kod repozytorium pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+5. Konfigurowane jest środowisko:
+
+   Python 3.11
+
+6. Następnie instalowane są zależności:
+
+   pip install -r requirements.txt
+
+7. Testy uruchamiane są poleceniem:
+
+   pytest tests/ -v
+
+8. Dodałam krok warunkowy:
+
+   if: github.ref == 'refs/heads/main' && success()
+
+9. Warunek sprawdza dwie rzeczy:
+
+   - czy workflow działa na branchu main,
+   - czy wcześniejsze kroki zakończyły się sukcesem.
+
+10. Jeśli oba warunki są spełnione, wykonywane jest:
+
+    echo "Ready to deploy!"
+
+11. Jeśli testy zakończą się błędem, krok deploy
+    nie zostanie uruchomiony.
+
+Rezultat:
+
+Branch:
+main
+
+Warunek:
+success()
+
+Komunikat:
+Ready to deploy!
+
+Wnioski:
+
+Conditional Steps pozwalają kontrolować, kiedy konkretne
+kroki pipeline mają być wykonywane.
+
+Dzięki warunkom można np. uruchamiać deploy tylko po
+poprawnym przejściu testów i tylko z głównego brancha.
+
+Przećwiczone elementy:
+- if,
+- success(),
+- github.ref,
+- branch main,
+- warunkowe kroki,
+- pytest,
+- GitHub Actions,
+- podstawy automatycznego deployu.

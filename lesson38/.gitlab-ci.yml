@@ -1,0 +1,48 @@
+# GitLab CI/CD
+# Pipeline zawiera etapy build, test i deploy.
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip/
+
+build:
+  stage: build
+  image: python:3.11
+
+  script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements.txt
+    - echo "Build completed"
+
+test:
+  stage: test
+  image: python:3.11
+
+  script:
+    - pip install -r requirements.txt
+    - pytest tests/ -v --junitxml=test-results.xml
+
+  artifacts:
+    when: always
+    paths:
+      - test-results.xml
+    reports:
+      junit: test-results.xml
+
+deploy:
+  stage: deploy
+  image: python:3.11
+
+  script:
+    - echo "Deploying application..."
+
+  only:
+    - main

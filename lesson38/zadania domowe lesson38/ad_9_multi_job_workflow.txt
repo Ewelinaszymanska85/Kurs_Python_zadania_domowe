@@ -1,0 +1,113 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 9 - Multi-Job Workflow
+
+Cel zadania:
+Stworzenie workflow zawierającego trzy osobne joby:
+lint, test oraz build.
+
+Job build powinien uruchomić się tylko wtedy,
+gdy lint i test zakończą się sukcesem.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_9_multi_job.yml
+
+2. Workflow zawiera trzy joby:
+
+   lint
+   test
+   build
+
+3. Job lint:
+
+   - pobiera kod repozytorium,
+   - konfiguruje Python 3.11,
+   - instaluje zależności,
+   - uruchamia flake8.
+
+4. Kontrola kodu wykonywana jest poleceniem:
+
+   flake8 . --max-line-length=88 --exclude=venv
+
+5. Job test:
+
+   - pobiera kod,
+   - konfiguruje Python 3.11,
+   - instaluje zależności,
+   - uruchamia pytest.
+
+6. Testy wykonywane są poleceniem:
+
+   pytest tests/ -v
+
+7. Job build posiada zależność:
+
+   needs:
+     - lint
+     - test
+
+8. Oznacza to, że build nie uruchomi się,
+   jeśli lint lub test zakończy się błędem.
+
+9. W kroku build symulowane jest budowanie aplikacji.
+
+10. Tworzony jest katalog:
+
+    build
+
+11. Następnie tworzony jest plik:
+
+    build/result.txt
+
+    zawierający komunikat:
+
+    Build completed
+
+12. Workflow prezentuje zależności pomiędzy jobami:
+
+    lint ──┐
+           ├── build
+    test ──┘
+
+13. Dzięki temu pipeline nie przechodzi do etapu build,
+    dopóki kod nie przejdzie kontroli jakości oraz testów.
+
+Rezultat:
+
+Job 1:
+lint
+
+Job 2:
+test
+
+Job 3:
+build
+
+Zależność:
+build wymaga sukcesu lint i test.
+
+Wnioski:
+
+Multi-job workflow pozwala podzielić pipeline CI/CD
+na logiczne, niezależne etapy.
+
+Mechanizm needs pozwala określić kolejność
+i zależności pomiędzy jobami.
+
+Przećwiczone elementy:
+- jobs,
+- lint,
+- pytest,
+- flake8,
+- build,
+- needs,
+- zależności pomiędzy jobami,
+- GitHub Actions,
+- pipeline CI.

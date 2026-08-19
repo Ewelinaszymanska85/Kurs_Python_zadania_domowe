@@ -1,0 +1,151 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 2 - Workflow z Pythonem
+
+Cel zadania:
+Stworzenie workflow GitHub Actions, który konfiguruje Python 3.11,
+uruchamia prosty plik Python z funkcją hello() i wyświetla wynik
+w logach GitHub Actions.
+
+Wykonanie:
+
+1. Utworzyłam plik Python:
+
+   ad_2_hello.py
+
+2. W pliku ad_2_hello.py utworzyłam funkcję hello():
+
+   def hello():
+       print("Hello from Python 3.11!")
+
+3. Dodałam standardowy warunek uruchomieniowy:
+
+   if __name__ == "__main__":
+       hello()
+
+4. Lokalnie przetestowałam program poleceniem:
+
+   python ad_2_hello.py
+
+5. Program uruchomił się poprawnie i wyświetlił:
+
+   Hello from Python 3.11!
+
+6. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_2_workflow_python.yml
+
+7. Workflow został skonfigurowany tak, aby:
+
+   - uruchamiał się po push,
+   - można było uruchomić go również ręcznie,
+   - pobierał kod repozytorium,
+   - konfigurował Python 3.11,
+   - sprawdzał wersję Pythona,
+   - uruchamiał plik ad_2_hello.py.
+
+8. Kod workflow:
+
+   name: Zadanie 2 - Python 3.11
+
+   on:
+     push:
+     workflow_dispatch:
+
+   jobs:
+     python:
+       runs-on: ubuntu-latest
+
+       steps:
+         - name: Pobierz kod repozytorium
+           uses: actions/checkout@v4
+
+         - name: Skonfiguruj Python 3.11
+           uses: actions/setup-python@v5
+           with:
+             python-version: "3.11"
+
+         - name: Sprawdz wersje Pythona
+           run: python --version
+
+         - name: Uruchom program
+           run: python ad_2_hello.py
+
+9. Workflow wykorzystuje:
+
+   actions/checkout@v4
+
+   do pobrania zawartości repozytorium na runner GitHub Actions.
+
+10. Do konfiguracji Pythona użyłam:
+
+    actions/setup-python@v5
+
+11. Wymaganą wersję Pythona określiłam jako:
+
+    python-version: "3.11"
+
+12. Dodałam krok kontrolny:
+
+    python --version
+
+    dzięki któremu można sprawdzić w logach, czy GitHub Actions
+    rzeczywiście używa Pythona 3.11.
+
+13. Następnie workflow uruchamia program:
+
+    python ad_2_hello.py
+
+14. Zmiany dodałam do Git:
+
+    git add .
+
+15. Utworzyłam commit:
+
+    git commit -m "Add task 2 Python workflow"
+
+16. Następnie wysłałam zmiany do GitHub:
+
+    git push
+
+17. GitHub poprawnie przyjął commit i automatycznie uruchomił workflow.
+
+Rezultat:
+
+Workflow:
+Zadanie 2 - Python 3.11
+
+Środowisko:
+ubuntu-latest
+
+Wersja Pythona w GitHub Actions:
+Python 3.11
+
+Uruchomiony program:
+ad_2_hello.py
+
+Oczekiwany komunikat w logach:
+
+Hello from Python 3.11!
+
+Wnioski:
+
+Zadanie pozwoliło przećwiczyć konfigurację środowiska Python
+w GitHub Actions oraz uruchamianie kodu Python w pipeline CI/CD.
+
+Przećwiczone elementy:
+- actions/checkout,
+- actions/setup-python,
+- Python 3.11,
+- workflow YAML,
+- jobs,
+- steps,
+- workflow_dispatch,
+- uruchamianie pliku Python,
+- sprawdzanie wersji Pythona,
+- commit i git push,
+- automatyczne uruchamianie workflow 

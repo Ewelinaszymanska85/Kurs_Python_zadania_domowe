@@ -1,0 +1,110 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 15 - GitLab CI/CD
+
+Cel zadania:
+Przepisanie workflow CI/CD z GitHub Actions
+na konfigurację GitLab CI/CD.
+
+Wykonanie:
+
+1. W głównym katalogu projektu utworzyłam plik:
+
+   .gitlab-ci.yml
+
+2. Pipeline zawiera trzy etapy:
+
+   build
+   test
+   deploy
+
+3. Kolejność etapów została określona w:
+
+   stages
+
+4. Dodałam cache dla zależności pip:
+
+   .cache/pip/
+
+5. Zmienna:
+
+   PIP_CACHE_DIR
+
+   wskazuje lokalizację cache w projekcie.
+
+6. Job build:
+
+   - wykorzystuje Python 3.11,
+   - aktualizuje pip,
+   - instaluje dependencies,
+   - symuluje budowanie aplikacji.
+
+7. Job test:
+
+   - instaluje zależności,
+   - uruchamia pytest,
+   - generuje raport JUnit XML.
+
+8. Testy uruchamiane są poleceniem:
+
+   pytest tests/ -v --junitxml=test-results.xml
+
+9. Wynik testów zapisywany jest jako artifact:
+
+   test-results.xml
+
+10. Raport został również dodany jako:
+
+    reports:
+      junit: test-results.xml
+
+11. Job deploy:
+
+    - wykonuje się w etapie deploy,
+    - symuluje wdrożenie aplikacji,
+    - działa tylko dla brancha main.
+
+12. Pipeline GitLab działa według schematu:
+
+    build
+      ↓
+    test
+      ↓
+    deploy
+
+Rezultat:
+
+Stage 1:
+build
+
+Stage 2:
+test
+
+Stage 3:
+deploy
+
+Cache:
+pip dependencies
+
+Artifact:
+test-results.xml
+
+Wnioski:
+
+GitLab CI/CD wykorzystuje plik .gitlab-ci.yml
+zamiast plików znajdujących się w .github/workflows.
+
+Podstawowe idee CI/CD pozostają jednak takie same:
+budowanie, testowanie i wdrażanie wykonywane są automatycznie.
+
+Przećwiczone elementy:
+- GitLab CI/CD,
+- .gitlab-ci.yml,
+- stages,
+- build,
+- test,
+- deploy,
+- cache,
+- artifacts,
+- pytest,
+- JUnit XML.

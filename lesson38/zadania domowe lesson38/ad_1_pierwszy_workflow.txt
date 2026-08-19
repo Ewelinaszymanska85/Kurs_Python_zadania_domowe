@@ -1,0 +1,128 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 1 - Pierwszy Workflow
+
+Cel zadania:
+Stworzenie pierwszego workflow GitHub Actions, który uruchamia się
+automatycznie przy każdym pushu i wyświetla komunikat "Hello, CI/CD!".
+
+Wykonanie:
+
+1. Utworzyłam środowisko wirtualne:
+
+   python -m venv venv
+
+2. Aktywowałam środowisko:
+
+   .\venv\Scripts\Activate.ps1
+
+3. Sprawdziłam wersję Pythona:
+
+   python --version
+
+   Wynik:
+   Python 3.12.10
+
+4. Utworzyłam plik .gitignore, aby nie wysyłać środowiska venv
+   oraz plików tymczasowych do repozytorium.
+
+   Zawartość .gitignore:
+
+   venv/
+   __pycache__/
+   .pytest_cache/
+   .coverage
+   htmlcov/
+
+5. Utworzyłam strukturę GitHub Actions:
+
+   .github/
+   └── workflows/
+       └── hello.yml
+
+6. W pliku hello.yml utworzyłam pierwszy workflow:
+
+   name: Hello CI/CD
+
+   on:
+     push:
+
+   jobs:
+     hello:
+       runs-on: ubuntu-latest
+
+       steps:
+         - name: Hello message
+           run: echo "Hello, CI/CD!"
+
+7. Workflow został skonfigurowany tak, aby:
+
+   - uruchamiał się automatycznie po każdym pushu,
+   - korzystał z runnera ubuntu-latest,
+   - wykonywał job o nazwie "hello",
+   - wyświetlał w logach komunikat "Hello, CI/CD!".
+
+8. Utworzyłam lokalne repozytorium Git:
+
+   git init
+
+9. Dodałam pliki projektu:
+
+   git add .
+
+10. Utworzyłam commit:
+
+    git commit -m "Add first CI/CD workflow"
+
+    ID commita:
+    88e486e
+
+11. Utworzyłam repozytorium GitHub:
+
+    lekcja-38-ci-cd
+
+12. Połączyłam lokalne repozytorium z GitHub:
+
+    git remote add origin https://github.com/Ewelinaszymanska85/lekcja-38-ci-cd.git
+
+13. Zmieniłam nazwę głównej gałęzi z master na main:
+
+    git branch -M main
+
+14. Wysłałam projekt na GitHub:
+
+    git push -u origin main
+
+15. Po wykonaniu push GitHub Actions automatycznie uruchomił workflow.
+
+Rezultat:
+
+Workflow:
+Hello CI/CD
+
+Status:
+Zakończony poprawnie.
+
+W logach GitHub Actions pojawił się wymagany komunikat:
+
+Hello, CI/CD!
+
+Wnioski:
+
+Zadanie pozwoliło przećwiczyć podstawową konfigurację CI/CD przy
+użyciu GitHub Actions. Workflow został zapisany w pliku YAML,
+uruchomiony automatycznie przez zdarzenie push i wykonany na
+runnerze Ubuntu.
+
+Przećwiczone elementy:
+- Git i GitHub,
+- .gitignore,
+- pliki YAML,
+- GitHub Actions,
+- workflow,
+- trigger push,
+- jobs,
+- steps,
+- runner ubuntu-latest,
+- commit,
+- git push.

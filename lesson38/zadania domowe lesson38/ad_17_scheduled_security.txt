@@ -1,0 +1,122 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 17 - Scheduled Workflow
+
+Cel zadania:
+Stworzenie workflow uruchamianego automatycznie codziennie
+o godzinie 3:00 UTC i wykonującego security scan zależności.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_17_scheduled_security.yml
+
+2. Dodałam harmonogram:
+
+   schedule:
+     - cron: "0 3 * * *"
+
+3. Oznacza to automatyczne uruchamianie workflow
+   codziennie o godzinie 3:00 UTC.
+
+4. Dodałam również:
+
+   workflow_dispatch
+
+   dzięki czemu workflow można uruchomić ręcznie.
+
+5. Kod repozytorium pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+6. Konfigurowane jest środowisko:
+
+   Python 3.11
+
+7. Następnie instalowane jest narzędzie:
+
+   pip-audit
+
+8. Security scan wykonywany jest poleceniem:
+
+   pip-audit -r requirements.txt
+
+9. pip-audit analizuje zależności projektu
+   pod kątem znanych podatności bezpieczeństwa.
+
+Rezultat:
+
+Harmonogram:
+codziennie o 3:00 UTC
+
+Narzędzie:
+pip-audit
+
+Plik analizowany:
+requirements.txt
+
+Workflow:
+Zadanie 17 - Security Scan
+
+Wnioski:
+
+Scheduled Workflows pozwalają automatycznie uruchamiać
+zadania cykliczne bez ręcznej ingerencji.
+
+Security scan może regularnie sprawdzać zależności
+projektu i wykrywać znane podatności.
+
+Przećwiczone elementy:
+- schedule,
+- cron,
+- workflow_dispatch,
+- pip-audit,
+- security scan,
+- GitHub Actions,
+- automatyczne zadania cykliczne.
+
+14. Security scan zapisuje wynik do pliku:
+
+    security-report.txt
+
+15. Dodałam:
+
+    continue-on-error: true
+
+    dzięki czemu workflow może przejść do kolejnego kroku
+    również wtedy, gdy pip-audit wykryje podatności.
+
+16. Workflow sprawdza wynik security scan za pomocą:
+
+    if: steps.audit.outcome == 'failure'
+
+17. Jeśli zostaną wykryte podatności, używana jest akcja:
+
+    peter-evans/create-issue-from-file
+
+18. Akcja tworzy GitHub Issue na podstawie pliku:
+
+    security-report.txt
+
+19. Workflow otrzymał uprawnienie:
+
+    issues: write
+
+    dzięki czemu może automatycznie tworzyć Issue
+    w repozytorium.
+
+20. Jeśli nie zostaną wykryte podatności,
+    Issue nie jest tworzony.
+
+Dodatkowo przećwiczone elementy:
+- permissions,
+- issues: write,
+- continue-on-error,
+- outcome,
+- automatyczne tworzenie GitHub Issue,
+- raport security scan.

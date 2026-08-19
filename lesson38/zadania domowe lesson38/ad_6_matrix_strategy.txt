@@ -1,0 +1,86 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 6 - Matrix Strategy
+
+Cel zadania:
+Skonfigurowanie workflow GitHub Actions tak, aby testy
+były uruchamiane równolegle na kilku wersjach Pythona.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_6_matrix_strategy.yml
+
+2. W workflow dodałam strategię matrix:
+
+   strategy:
+     matrix:
+       python-version: ["3.9", "3.10", "3.11"]
+
+3. Dzięki temu GitHub Actions tworzy osobny job
+   dla każdej wersji Pythona.
+
+4. Testowane wersje:
+
+   Python 3.9
+   Python 3.10
+   Python 3.11
+
+5. Każdy job uruchamia się na:
+
+   ubuntu-latest
+
+6. Kod repozytorium jest pobierany za pomocą:
+
+   actions/checkout@v4
+
+7. Wybrana wersja Pythona jest instalowana przez:
+
+   actions/setup-python@v5
+
+8. Wersja Pythona jest pobierana dynamicznie z matrix:
+
+   python-version: ${{ matrix.python-version }}
+
+9. Następnie instalowane są zależności:
+
+   pip install -r requirements.txt
+
+10. Dodałam krok kontrolny:
+
+    python --version
+
+11. Na każdej wersji Pythona uruchamiane są testy:
+
+    pytest tests/ -v
+
+Rezultat:
+
+Workflow uruchamia trzy warianty joba:
+
+Python 3.9
+Python 3.10
+Python 3.11
+
+Każdy wariant wykonuje te same testy niezależnie.
+
+Wnioski:
+
+Matrix Strategy pozwala sprawdzić kompatybilność aplikacji
+z wieloma wersjami Pythona bez tworzenia osobnych workflow
+dla każdej wersji.
+
+Przećwiczone elementy:
+- strategy,
+- matrix,
+- python-version,
+- actions/setup-python,
+- testowanie wielu wersji Pythona,
+- równoległe joby,
+- pytest,
+- GitHub Actions.

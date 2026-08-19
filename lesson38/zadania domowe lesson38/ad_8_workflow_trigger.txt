@@ -1,0 +1,99 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 8 - Workflow Trigger
+
+Cel zadania:
+Skonfigurowanie różnych sposobów uruchamiania workflow
+GitHub Actions.
+
+Workflow powinien uruchamiać się:
+- po push do brancha main,
+- po pull request do brancha main,
+- ręcznie za pomocą workflow_dispatch.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_8_workflow_trigger.yml
+
+2. Dodałam trigger push:
+
+   push:
+     branches:
+       - main
+
+3. Oznacza to, że workflow jest automatycznie
+   uruchamiany po wysłaniu zmian do gałęzi main.
+
+4. Dodałam trigger pull_request:
+
+   pull_request:
+     branches:
+       - main
+
+5. Workflow zostanie dzięki temu uruchomiony również
+   podczas tworzenia Pull Request do gałęzi main.
+
+6. Dodałam:
+
+   workflow_dispatch:
+
+   co umożliwia ręczne uruchomienie workflow
+   z poziomu GitHub Actions.
+
+7. Workflow wykorzystuje:
+
+   actions/checkout@v4
+
+   do pobrania kodu repozytorium.
+
+8. Środowisko Python 3.11 jest konfigurowane za pomocą:
+
+   actions/setup-python@v5
+
+9. Następnie instalowane są zależności:
+
+   pip install -r requirements.txt
+
+10. Na końcu uruchamiane są testy:
+
+    pytest tests/ -v
+
+Rezultat:
+
+Workflow obsługuje trzy sposoby uruchomienia:
+
+1. Push do main
+2. Pull Request do main
+3. Ręczne uruchomienie
+
+Workflow:
+Zadanie 8 - Workflow Trigger
+
+Python:
+3.11
+
+Testy:
+pytest
+
+Wnioski:
+
+GitHub Actions pozwala dokładnie określić zdarzenia,
+które mają uruchamiać pipeline CI/CD.
+
+workflow_dispatch pozwala dodatkowo uruchomić workflow
+ręcznie bez konieczności wykonywania nowego push.
+
+Przećwiczone elementy:
+- push,
+- branches,
+- main,
+- pull_request,
+- workflow_dispatch,
+- GitHub Actions,
+- automatyczne i ręczne uruchamianie workflow.

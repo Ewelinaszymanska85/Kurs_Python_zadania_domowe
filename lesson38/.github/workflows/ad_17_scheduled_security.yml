@@ -1,0 +1,51 @@
+# Scheduled Workflow
+# Codzienny security scan zaleznosci oraz tworzenie GitHub Issue,
+# jesli pip-audit wykryje podatnosci.
+
+name: Zadanie 17 - Security Scan
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Zainstaluj pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+
+      - name: Uruchom security scan
+        id: audit
+        continue-on-error: true
+        run: |
+          pip-audit -r requirements.txt > security-report.txt 2>&1
+
+      - name: Pokaz raport
+        if: always()
+        run: cat security-report.txt
+
+      - name: Utworz GitHub Issue
+        if: steps.audit.outcome == 'failure'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Security alert - wykryto podatnosci"
+          content-filepath: security-report.txt
+          labels: security

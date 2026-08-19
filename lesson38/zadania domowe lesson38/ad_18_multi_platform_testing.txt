@@ -1,0 +1,99 @@
+"""
+CI/CD i GitHub Actions
+Zadanie 18 - Multi-Platform Testing
+
+Cel zadania:
+Stworzenie workflow testującego aplikację na wielu
+systemach operacyjnych i kilku wersjach Pythona.
+
+Wykonanie:
+
+1. W folderze:
+
+   .github/workflows/
+
+   utworzyłam plik:
+
+   ad_18_multi_platform.yml
+
+2. Workflow wykorzystuje Matrix Strategy.
+
+3. Testowane systemy operacyjne:
+
+   ubuntu-latest
+   macos-latest
+   windows-latest
+
+4. Testowane wersje Pythona:
+
+   3.9
+   3.10
+   3.11
+
+5. Łącznie workflow uruchamia:
+
+   9 kombinacji
+
+6. Każdy job korzysta z dynamicznego runnera:
+
+   runs-on: ${{ matrix.os }}
+
+7. Wersja Pythona pobierana jest z matrix:
+
+   python-version: ${{ matrix.python-version }}
+
+8. Dodałam:
+
+   fail-fast: false
+
+   dzięki czemu pozostałe kombinacje są testowane
+   nawet wtedy, gdy jedna z nich zakończy się błędem.
+
+9. Kod repozytorium pobierany jest za pomocą:
+
+   actions/checkout@v4
+
+10. Python konfigurowany jest za pomocą:
+
+    actions/setup-python@v5
+
+11. Następnie instalowane są zależności:
+
+    pip install -r requirements.txt
+
+12. Na każdej kombinacji systemu i wersji Pythona
+    uruchamiane są testy:
+
+    pytest tests/ -v
+
+Rezultat:
+
+Systemy:
+Ubuntu
+macOS
+Windows
+
+Python:
+3.9
+3.10
+3.11
+
+Łączna liczba jobów:
+9
+
+Wnioski:
+
+Matrix Strategy pozwala automatycznie sprawdzić,
+czy aplikacja działa poprawnie w różnych środowiskach.
+
+Multi-platform testing zwiększa pewność, że kod
+jest przenośny i kompatybilny z różnymi systemami.
+
+Przećwiczone elementy:
+- matrix,
+- multiple OS,
+- multiple Python versions,
+- fail-fast,
+- pytest,
+- GitHub Actions,
+- kompatybilność aplikacji.
