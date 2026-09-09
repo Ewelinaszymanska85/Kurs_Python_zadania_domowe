@@ -1,4 +1,4 @@
-import subprocess
+﻿import subprocess
 import time
 from dataclasses import dataclass
 
@@ -16,10 +16,11 @@ class DeploymentConfig:
 
 
 class DeploymentPipeline:
-    """Symuluje kompletny pipeline wdrożeniowy."""
+    """Symuluje kompletny pipeline wdro┼╝eniowy."""
 
     def __init__(self, config: DeploymentConfig) -> None:
         self.config = config
+        self.deployed = False
 
     def run_command(self, command: list[str], step_name: str) -> None:
         print(f"[RUN] {step_name}")
@@ -40,7 +41,7 @@ class DeploymentPipeline:
     def run_tests(self) -> None:
         self.run_command(
             ["pytest"],
-            "Uruchomienie testów",
+            "Uruchomienie test├│w",
         )
 
     def build_docker_image(self) -> None:
@@ -67,6 +68,7 @@ class DeploymentPipeline:
             f"[SIMULATION] Deployment przez SSH "
             f"na EC2: {self.config.ec2_host}"
         )
+        self.deployed = True
 
     def health_check(self) -> bool:
         print(f"[CHECK] {self.config.health_url}")
@@ -78,7 +80,7 @@ class DeploymentPipeline:
             )
 
             if response.status_code == 200:
-                print("[OK] Health check zakończony sukcesem.")
+                print("[OK] Health check zako┼äczony sukcesem.")
                 return True
 
             print(
@@ -97,7 +99,7 @@ class DeploymentPipeline:
             "wersji aplikacji..."
         )
         time.sleep(0.5)
-        print("[OK] Rollback zakończony.")
+        print("[OK] Rollback zako┼äczony.")
 
     def deploy(self) -> bool:
         print("=== COMPLETE DEPLOYMENT PIPELINE ===")
@@ -115,13 +117,16 @@ class DeploymentPipeline:
 
         except subprocess.CalledProcessError as exc:
             print(
-                f"[ERROR] Pipeline przerwany. "
+                f"[ERROR] Pipeline przerwany na etapie przed deploymentem. "
                 f"Exit code: {exc.returncode}"
             )
-            self.rollback()
+
+            if self.deployed:
+                self.rollback()
+
             return False
 
-        print("[SUCCESS] Deployment zakończony pomyślnie.")
+        print("[SUCCESS] Deployment zako┼äczony pomy┼Ťlnie.")
         return True
 
 

@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 import boto3
 from botocore.exceptions import ClientError
@@ -9,7 +9,7 @@ def upload_jpg_files(
     bucket_name: str,
     prefix: str = "uploads/",
 ) -> int:
-    """Wysyła wszystkie pliki JPG z katalogu do bucketa S3."""
+    """Wysy┼éa wszystkie pliki JPG z katalogu do bucketa S3."""
     directory = Path(source_dir)
 
     if not directory.exists():
@@ -19,16 +19,18 @@ def upload_jpg_files(
 
     if not directory.is_dir():
         raise NotADirectoryError(
-            f"Podana ścieżka nie jest katalogiem: {directory}"
+            f"Podana ┼Ťcie┼╝ka nie jest katalogiem: {directory}"
         )
 
     s3 = boto3.client("s3")
     uploaded_count = 0
 
-    jpg_files = sorted(directory.glob("*.jpg"))
+    jpg_files = sorted(
+        set(directory.glob("*.jpg")) | set(directory.glob("*.JPG"))
+    )
 
     if not jpg_files:
-        print("[INFO] Nie znaleziono plików JPG.")
+        print("[INFO] Nie znaleziono plik├│w JPG.")
         return 0
 
     for file_path in jpg_files:
@@ -51,12 +53,12 @@ def upload_jpg_files(
         except ClientError as exc:
             print(
                 f"[AWS ERROR] {file_path.name}: "
-                f"{exc.response['Error'].get('Message', 'Nieznany błąd')}"
+                f"{exc.response['Error'].get('Message', 'Nieznany b┼é─ůd')}"
             )
 
     print(
-        f"[SUMMARY] Wysłano {uploaded_count} "
-        f"z {len(jpg_files)} plików."
+        f"[SUMMARY] Wys┼éano {uploaded_count} "
+        f"z {len(jpg_files)} plik├│w."
     )
 
     return uploaded_count

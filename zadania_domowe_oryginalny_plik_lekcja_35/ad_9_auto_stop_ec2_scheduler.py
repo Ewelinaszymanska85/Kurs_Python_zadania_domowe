@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
@@ -11,7 +11,7 @@ logging.basicConfig(
 
 
 def get_tag_value(tags: list[dict] | None, key: str) -> str | None:
-    """Zwraca wartość wskazanego taga EC2."""
+    """Zwraca warto┼Ť─ç wskazanego taga EC2."""
     if not tags:
         return None
 
@@ -24,11 +24,13 @@ def get_tag_value(tags: list[dict] | None, key: str) -> str | None:
 
 def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
     """
-    Zatrzymuje działające instancje EC2 oznaczone tagiem AutoStop=true.
+    Zatrzymuje dzia┼éaj─ůce instancje EC2 oznaczone tagiem AutoStop=true.
     """
     ec2 = boto3.client("ec2", region_name=region)
 
     stopped_instances = []
+
+    logging.info("Uruchamiam scheduler AutoStop | region=%s", region)
 
     try:
         response = ec2.describe_instances(
@@ -65,13 +67,18 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
                 stopped_instances.append(instance_id)
 
                 logging.info(
-                    "Zatrzymuję instancję %s | AutoStop=true",
+                    "Zatrzymuj─Ö instancj─Ö %s | AutoStop=true",
                     instance_id,
                 )
 
                 print(
                     f"[STOP] {instance_id} | AutoStop=true"
                 )
+
+        logging.info(
+            "Scheduler zako┼äczony | zatrzymano %d instancji",
+            len(stopped_instances),
+        )
 
         print(
             f"[SUMMARY] Zatrzymano instancji: "
@@ -81,17 +88,20 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
         return stopped_instances
 
     except NoCredentialsError:
-        print("[ERROR] Brak danych uwierzytelniających AWS.")
+        logging.error("Brak danych uwierzytelniaj─ůcych AWS.")
+        print("[ERROR] Brak danych uwierzytelniaj─ůcych AWS.")
 
     except ClientError as exc:
         message = exc.response["Error"].get(
             "Message",
-            "Nieznany błąd AWS",
+            "Nieznany b┼é─ůd AWS",
         )
+        logging.error("B┼é─ůd AWS: %s", message)
         print(f"[AWS ERROR] {message}")
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd komunikacji z AWS: {exc}")
+        logging.error("B┼é─ůd komunikacji z AWS: %s", exc)
+        print(f"[ERROR] B┼é─ůd komunikacji z AWS: {exc}")
 
     return []
 

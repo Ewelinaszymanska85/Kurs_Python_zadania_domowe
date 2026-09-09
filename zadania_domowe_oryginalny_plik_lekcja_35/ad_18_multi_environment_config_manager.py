@@ -1,34 +1,31 @@
-import json
+﻿import json
 from pathlib import Path
 from typing import Any
 
 
 class MultiEnvironmentConfigManager:
-    """Zarządza konfiguracjami wielu środowisk aplikacji."""
+    """Zarz─ůdza konfiguracjami wielu ┼Ťrodowisk infrastruktury."""
 
     def __init__(self, config_file: str = "environments.json") -> None:
         self.config_file = Path(config_file)
 
     def create_default_config(self) -> None:
-        """Tworzy przykładową konfigurację środowisk."""
+        """Tworzy przyk┼éadow─ů konfiguracj─Ö ┼Ťrodowisk."""
         config = {
-            "development": {
-                "debug": True,
-                "database": "localhost",
-                "workers": 1,
-                "log_level": "DEBUG",
+            "dev": {
+                "region": "eu-central-1",
+                "instance_type": "t3.micro",
+                "db_size": "db.t3.micro",
             },
             "staging": {
-                "debug": False,
-                "database": "staging-db.internal",
-                "workers": 2,
-                "log_level": "INFO",
+                "region": "eu-central-1",
+                "instance_type": "t3.small",
+                "db_size": "db.t3.small",
             },
             "production": {
-                "debug": False,
-                "database": "production-db.internal",
-                "workers": 4,
-                "log_level": "WARNING",
+                "region": "eu-west-1",
+                "instance_type": "m5.large",
+                "db_size": "db.m5.large",
             },
         }
 
@@ -41,7 +38,7 @@ class MultiEnvironmentConfigManager:
             )
 
     def load_config(self) -> dict[str, Any]:
-        """Wczytuje konfigurację z pliku JSON."""
+        """Wczytuje konfiguracj─Ö z pliku JSON."""
         if not self.config_file.exists():
             self.create_default_config()
 
@@ -49,33 +46,32 @@ class MultiEnvironmentConfigManager:
             return json.load(file)
 
     def get_environment(self, environment: str) -> dict[str, Any]:
-        """Pobiera konfigurację wybranego środowiska."""
+        """Pobiera konfiguracj─Ö wybranego ┼Ťrodowiska."""
         config = self.load_config()
 
         if environment not in config:
             raise ValueError(
-                f"Nieznane środowisko: {environment}"
+                f"Nieznane ┼Ťrodowisko: {environment}"
             )
 
         return config[environment]
 
     def deploy(self, environment: str) -> None:
-        """Symuluje deployment wybranej konfiguracji."""
+        """Wy┼Ťwietla, jakie zasoby nale┼╝y utworzy─ç dla danego ┼Ťrodowiska."""
         config = self.get_environment(environment)
 
         print(f"=== DEPLOYMENT: {environment.upper()} ===")
-
-        for key, value in config.items():
-            print(f"{key:<12}: {value}")
-
-        print("[OK] Konfiguracja wdrożona.")
+        print(f"Region        : {config['region']}")
+        print(f"Instancja EC2 : {config['instance_type']}")
+        print(f"Baza danych   : {config['db_size']}")
+        print("[OK] Zasoby gotowe do utworzenia.")
 
     def compare(
         self,
         first_environment: str,
         second_environment: str,
     ) -> dict[str, tuple[Any, Any]]:
-        """Porównuje konfiguracje dwóch środowisk."""
+        """Por├│wnuje konfiguracje dw├│ch ┼Ťrodowisk."""
         first = self.get_environment(first_environment)
         second = self.get_environment(second_environment)
 
@@ -109,7 +105,7 @@ if __name__ == "__main__":
 
         for key, values in differences.items():
             print(
-                f"{key:<12}: "
+                f"{key:<14}: "
                 f"{values[0]} -> {values[1]}"
             )
 

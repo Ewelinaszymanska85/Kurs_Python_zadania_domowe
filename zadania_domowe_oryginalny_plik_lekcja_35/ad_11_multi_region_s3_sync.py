@@ -1,4 +1,4 @@
-import boto3
+﻿import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 
@@ -10,22 +10,26 @@ def sync_s3_buckets(
     s3 = boto3.client("s3")
 
     try:
-        response = s3.list_objects_v2(
-            Bucket=source_bucket,
-        )
+        paginator = s3.get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=source_bucket)
 
-        objects = response.get("Contents", [])
+        objects = [
+            obj
+            for page in pages
+            for obj in page.get("Contents", [])
+        ]
 
         if not objects:
-            print("[INFO] Bucket źródłowy jest pusty.")
+            print("[INFO] Bucket ┼║r├│d┼éowy jest pusty.")
             return 0
 
         copied = 0
+        failed = 0
 
         print("=== S3 MULTI-REGION SYNC ===")
-        print(f"Źródło: {source_bucket}")
+        print(f"┼╣r├│d┼éo: {source_bucket}")
         print(f"Cel: {destination_bucket}")
-        print(f"Obiektów do skopiowania: {len(objects)}\n")
+        print(f"Obiekt├│w do skopiowania: {len(objects)}\n")
 
         for obj in objects:
             key = obj["Key"]
@@ -35,30 +39,36 @@ def sync_s3_buckets(
                 "Key": key,
             }
 
-            s3.copy_object(
-                CopySource=copy_source,
-                Bucket=destination_bucket,
-                Key=key,
-            )
+            try:
+                s3.copy_object(
+                    CopySource=copy_source,
+                    Bucket=destination_bucket,
+                    Key=key,
+                )
 
-            copied += 1
-            print(f"[COPY] {key}")
+                copied += 1
+                print(f"[COPY] {key}")
 
-        print(f"\n[OK] Skopiowano obiektów: {copied}")
+            except ClientError as exc:
+                failed += 1
+                message = exc.response["Error"].get("Message", "Nieznany b┼é─ůd")
+                print(f"[FAILED] {key}: {message}")
+
+        print(f"\n[OK] Skopiowano obiekt├│w: {copied} | B┼é─Öd├│w: {failed}")
         return copied
 
     except NoCredentialsError:
-        print("[ERROR] Brak danych uwierzytelniających AWS.")
+        print("[ERROR] Brak danych uwierzytelniaj─ůcych AWS.")
 
     except ClientError as exc:
         message = exc.response["Error"].get(
             "Message",
-            "Nieznany błąd",
+            "Nieznany b┼é─ůd",
         )
         print(f"[AWS ERROR] {message}")
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd komunikacji z AWS: {exc}")
+        print(f"[ERROR] B┼é─ůd komunikacji z AWS: {exc}")
 
     return 0
 

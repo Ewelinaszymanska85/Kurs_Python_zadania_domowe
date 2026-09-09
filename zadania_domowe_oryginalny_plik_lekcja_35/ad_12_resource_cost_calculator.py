@@ -1,11 +1,11 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 
 class AWSCostCalculator:
-    """Szacuje koszt działania instancji EC2."""
+    """Szacuje koszt dzia┼éania instancji EC2."""
 
     PRICES = {
         "t3.micro": 0.01,
@@ -29,7 +29,12 @@ class AWSCostCalculator:
         ]
 
     def calculate_instance_cost(self, instance: dict) -> float:
-        """Oblicza szacowany koszt pojedynczej instancji."""
+        """Oblicza szacowany koszt pojedynczej instancji (tylko running)."""
+        state = instance.get("State", {}).get("Name")
+
+        if state != "running":
+            return 0.0
+
         instance_type = instance["InstanceType"]
         launch_time = instance["LaunchTime"]
 
@@ -48,7 +53,7 @@ class AWSCostCalculator:
         return hourly_price * hours
 
     def generate_report(self) -> float:
-        """Generuje raport kosztów wszystkich instancji."""
+        """Generuje raport koszt├│w wszystkich instancji."""
         instances = self.get_instances()
         total_cost = 0.0
 
@@ -79,13 +84,13 @@ if __name__ == "__main__":
         calculator.generate_report()
 
     except NoCredentialsError:
-        print("[ERROR] Brak danych uwierzytelniających AWS.")
+        print("[ERROR] Brak danych uwierzytelniaj─ůcych AWS.")
 
     except ClientError as exc:
         print(
             f"[AWS ERROR] "
-            f"{exc.response['Error'].get('Message', 'Nieznany błąd')}"
+            f"{exc.response['Error'].get('Message', 'Nieznany b┼é─ůd')}"
         )
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd komunikacji z AWS: {exc}")
+        print(f"[ERROR] B┼é─ůd komunikacji z AWS: {exc}")

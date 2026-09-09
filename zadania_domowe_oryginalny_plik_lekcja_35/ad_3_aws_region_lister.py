@@ -1,9 +1,9 @@
-import boto3
+﻿import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 
 def list_aws_regions() -> None:
-    """Pobiera i wyświetla dostępne regiony AWS EC2."""
+    """Pobiera i wy┼Ťwietla dost─Öpne regiony AWS EC2 wraz z endpointami."""
     try:
         ec2 = boto3.client("ec2", region_name="eu-central-1")
 
@@ -14,13 +14,14 @@ def list_aws_regions() -> None:
         )
 
         print("=== AWS REGIONS ===")
-        print(f"Liczba regionów: {len(regions)}\n")
+        print(f"Liczba region├│w: {len(regions)}\n")
 
         for number, region in enumerate(regions, start=1):
             name = region["RegionName"]
+            endpoint = region.get("Endpoint", "brak endpointu")
             status = region.get("OptInStatus", "unknown")
 
-            print(f"{number:02}. {name:<20} | status: {status}")
+            print(f"{number:02}. {name:<20} | {endpoint:<35} | status: {status}")
 
     except NoCredentialsError:
         print("[ERROR] Nie znaleziono danych logowania AWS.")
@@ -29,7 +30,7 @@ def list_aws_regions() -> None:
         print(f"[AWS ERROR] {exc.response['Error']['Message']}")
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd boto3: {exc}")
+        print(f"[ERROR] B┼é─ůd boto3: {exc}")
 
 
 if __name__ == "__main__":

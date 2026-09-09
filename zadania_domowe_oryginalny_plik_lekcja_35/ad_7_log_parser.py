@@ -1,30 +1,29 @@
+﻿import re
 from collections import Counter
 from pathlib import Path
 
 
 LOG_LEVELS = ("ERROR", "WARNING", "INFO")
+LOG_PATTERN = re.compile(r"^\[.*?\]\s*(ERROR|WARNING|INFO)\b")
 
 
 def parse_log_file(file_path: str) -> dict[str, int]:
-    """Zlicza poziomy logów w podanym pliku."""
+    """Zlicza poziomy log├│w w podanym pliku."""
     path = Path(file_path)
 
     if not path.exists():
         raise FileNotFoundError(f"Plik nie istnieje: {path}")
 
     if not path.is_file():
-        raise ValueError(f"Podana ścieżka nie jest plikiem: {path}")
+        raise ValueError(f"Podana ┼Ťcie┼╝ka nie jest plikiem: {path}")
 
     counter = Counter()
 
     with path.open("r", encoding="utf-8") as file:
         for line in file:
-            normalized = line.upper()
-
-            for level in LOG_LEVELS:
-                if level in normalized:
-                    counter[level] += 1
-                    break
+            match = LOG_PATTERN.match(line.strip())
+            if match:
+                counter[match.group(1)] += 1
 
     result = {
         level: counter.get(level, 0)
@@ -35,7 +34,7 @@ def parse_log_file(file_path: str) -> dict[str, int]:
 
 
 def print_report(result: dict[str, int]) -> None:
-    """Wyświetla czytelne podsumowanie logów."""
+    """Wy┼Ťwietla czytelne podsumowanie log├│w."""
     print("=== LOG REPORT ===")
 
     total = sum(result.values())

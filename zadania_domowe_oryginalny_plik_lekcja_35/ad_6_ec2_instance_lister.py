@@ -1,9 +1,10 @@
-import boto3
+﻿import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
+from collections import Counter
 
 
 def list_ec2_instances(region: str = "eu-central-1") -> list[dict]:
-    """Pobiera i wyświetla podstawowe informacje o instancjach EC2."""
+    """Pobiera i wy┼Ťwietla podstawowe informacje o instancjach EC2."""
     ec2 = boto3.client("ec2", region_name=region)
 
     try:
@@ -35,7 +36,10 @@ def list_ec2_instances(region: str = "eu-central-1") -> list[dict]:
                 f"Public IP: {instance['public_ip']}"
             )
 
-        print(f"\n[SUMMARY] Liczba instancji: {len(instances)}")
+        state_counts = Counter(instance["state"] for instance in instances)
+        summary = ", ".join(f"{state}: {count}" for state, count in state_counts.items())
+
+        print(f"\n[SUMMARY] Liczba instancji: {len(instances)} ({summary})")
         return instances
 
     except NoCredentialsError:
@@ -43,12 +47,12 @@ def list_ec2_instances(region: str = "eu-central-1") -> list[dict]:
         return []
 
     except ClientError as exc:
-        message = exc.response["Error"].get("Message", "Nieznany błąd")
+        message = exc.response["Error"].get("Message", "Nieznany b┼é─ůd")
         print(f"[AWS ERROR] {message}")
         return []
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd boto3: {exc}")
+        print(f"[ERROR] B┼é─ůd boto3: {exc}")
         return []
 
 

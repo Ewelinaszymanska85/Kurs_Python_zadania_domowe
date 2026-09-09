@@ -1,9 +1,9 @@
-from io import BytesIO
+﻿from io import BytesIO
 from pathlib import Path
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 
 class S3ImageProcessor:
@@ -37,22 +37,25 @@ class S3ImageProcessor:
         image_data = response["Body"].read()
 
         with Image.open(BytesIO(image_data)) as image:
+            image_format = image.format or "JPEG"
             image.thumbnail(self.thumbnail_size)
 
             output = BytesIO()
-            image_format = image.format or "JPEG"
+
+            # RGBA nie jest wspierane przez JPEG - konwersja przy zapisie.
+            if image_format == "JPEG" and image.mode in ("RGBA", "P"):
+                image = image.convert("RGB")
+
             image.save(output, format=image_format)
             output.seek(0)
 
-            thumbnail_key = (
-                f"thumbnails/{Path(object_key).name}"
-            )
+        thumbnail_key = f"thumbnails/{Path(object_key).name}"
 
-            self.s3.upload_fileobj(
-                output,
-                self.bucket_name,
-                thumbnail_key,
-            )
+        self.s3.upload_fileobj(
+            output,
+            self.bucket_name,
+            thumbnail_key,
+        )
 
         print(f"[OK] {object_key} -> {thumbnail_key}")
         return thumbnail_key
@@ -63,13 +66,26 @@ class S3ImageProcessor:
         objects = self.list_image_objects()
 
         if not objects:
-            print("[INFO] Brak obrazów do przetworzenia.")
+            print("[INFO] Brak obraz├│w do przetworzenia.")
             return
 
-        for object_key in objects:
-            self.create_thumbnail(object_key)
+        processed = 0
+        failed = 0
 
-        print(f"[SUMMARY] Przetworzono obrazów: {len(objects)}")
+        for object_key in objects:
+            try:
+                self.create_thumbnail(object_key)
+                processed += 1
+
+            except UnidentifiedImageError:
+                failed += 1
+                print(f"[SKIP] {object_key}: nieprawid┼éowy plik obrazu.")
+
+            except (ClientError, BotoCoreError) as exc:
+                failed += 1
+                print(f"[ERROR] {object_key}: {exc}")
+
+        print(f"[SUMMARY] Przetworzono: {processed} | B┼é─Öd├│w: {failed}")
 
 
 if __name__ == "__main__":
@@ -81,13 +97,13 @@ if __name__ == "__main__":
         processor.process()
 
     except NoCredentialsError:
-        print("[ERROR] Brak danych uwierzytelniających AWS.")
+        print("[ERROR] Brak danych uwierzytelniaj─ůcych AWS.")
 
     except ClientError as exc:
         print(
             f"[AWS ERROR] "
-            f"{exc.response['Error'].get('Message', 'Nieznany błąd')}"
+            f"{exc.response['Error'].get('Message', 'Nieznany b┼é─ůd')}"
         )
 
     except BotoCoreError as exc:
-        print(f"[ERROR] Błąd komunikacji z AWS: {exc}")
+        print(f"[ERROR] B┼é─ůd komunikacji z AWS: {exc}")

@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import mimetypes
 from pathlib import Path
@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 
 class S3StaticWebsiteDeployer:
-    """Wdraża statyczną stronę WWW do bucketa Amazon S3."""
+    """Wdra┼╝a statyczn─ů stron─Ö WWW do bucketa Amazon S3."""
 
     def __init__(self, bucket_name: str, region: str) -> None:
         self.bucket_name = bucket_name
@@ -32,7 +32,7 @@ class S3StaticWebsiteDeployer:
             code = exc.response["Error"]["Code"]
 
             if code == "BucketAlreadyOwnedByYou":
-                print("[INFO] Bucket już istnieje i należy do Ciebie.")
+                print("[INFO] Bucket ju┼╝ istnieje i nale┼╝y do Ciebie.")
             else:
                 raise
 
@@ -102,6 +102,16 @@ class S3StaticWebsiteDeployer:
 
         return uploaded
 
+    def get_website_url(self) -> str:
+        """Buduje poprawny URL strony statycznej dla danego regionu."""
+        if self.region == "us-east-1":
+            return f"http://{self.bucket_name}.s3-website-us-east-1.amazonaws.com"
+
+        return (
+            f"http://{self.bucket_name}.s3-website."
+            f"{self.region}.amazonaws.com"
+        )
+
     def deploy(self, directory: str) -> None:
         print("=== S3 STATIC WEBSITE DEPLOYMENT ===")
 
@@ -110,13 +120,8 @@ class S3StaticWebsiteDeployer:
 
         uploaded = self.upload_files(directory)
 
-        website_url = (
-            f"http://{self.bucket_name}.s3-website."
-            f"{self.region}.amazonaws.com"
-        )
-
-        print(f"\n[OK] Wysłano plików: {uploaded}")
-        print(f"[URL] {website_url}")
+        print(f"\n[OK] Wys┼éano plik├│w: {uploaded}")
+        print(f"[URL] {self.get_website_url()}")
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -126,7 +131,7 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "directory",
-        help="Katalog zawierający pliki strony.",
+        help="Katalog zawieraj─ůcy pliki strony.",
     )
 
     parser.add_argument(

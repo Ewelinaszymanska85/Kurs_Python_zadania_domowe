@@ -1,5 +1,5 @@
-import random
-from dataclasses import dataclass
+﻿import random
+from dataclasses import dataclass, field
 from enum import Enum
 
 
@@ -18,8 +18,21 @@ class AutoScalingConfig:
     required_measurements: int = 3
 
 
+@dataclass
+class ScalingEvent:
+    iteration: int
+    cpu: float
+    instances: int
+    action: ScalingAction
+
+
+def simulate_load() -> float:
+    """Zwraca losowe obci─ů┼╝enie CPU w zakresie 20-90%."""
+    return round(random.uniform(20, 90), 1)
+
+
 class AutoScalingSimulator:
-    """Symuluje Auto Scaling na podstawie kolejnych pomiarów CPU."""
+    """Symuluje Auto Scaling na podstawie kolejnych pomiar├│w CPU."""
 
     def __init__(
         self,
@@ -30,10 +43,12 @@ class AutoScalingSimulator:
         self.instances = instances
         self.high_cpu_count = 0
         self.low_cpu_count = 0
+        self.history: list[ScalingEvent] = field(default_factory=list)
+        self.history = []
 
     def evaluate(self, cpu: float) -> ScalingAction:
         if not 0 <= cpu <= 100:
-            raise ValueError("CPU musi mieścić się w zakresie 0-100%.")
+            raise ValueError("CPU musi mie┼Ťci─ç si─Ö w zakresie 0-100%.")
 
         if cpu >= self.config.scale_up_threshold:
             self.high_cpu_count += 1
@@ -69,8 +84,17 @@ class AutoScalingSimulator:
         print("=== AUTO SCALING SIMULATOR ===")
 
         for iteration in range(1, iterations + 1):
-            cpu = round(random.uniform(10, 95), 1)
+            cpu = simulate_load()
             action = self.evaluate(cpu)
+
+            self.history.append(
+                ScalingEvent(
+                    iteration=iteration,
+                    cpu=cpu,
+                    instances=self.instances,
+                    action=action,
+                )
+            )
 
             print(
                 f"{iteration:02}. "
@@ -80,7 +104,16 @@ class AutoScalingSimulator:
             )
 
         print("\n=== PODSUMOWANIE ===")
-        print(f"Końcowa liczba instancji: {self.instances}")
+        print(f"Ko┼äcowa liczba instancji: {self.instances}")
+
+        scaling_events = [e for e in self.history if e.action != ScalingAction.NO_CHANGE]
+        print(f"Liczba akcji skalowania: {len(scaling_events)}")
+
+        for event in scaling_events:
+            print(
+                f"  - Iteracja {event.iteration:02}: {event.action.value} "
+                f"(CPU: {event.cpu}%, instancje: {event.instances})"
+            )
 
 
 if __name__ == "__main__":
