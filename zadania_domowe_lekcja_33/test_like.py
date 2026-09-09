@@ -1,4 +1,4 @@
-from django.test import TestCase
+﻿from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -7,15 +7,15 @@ from ..models import Article, Like
 
 class LikeTests(TestCase):
     """
-    Testy mechanizmu polubień artykułów.
+    Testy mechanizmu polubieĹ„ artykuĹ‚Ăłw.
     """
 
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username="liker", password="TestPass123!")
         self.article = Article.objects.create(
-            title="Artykuł do polubienia",
-            content="Treść",
+            title="ArtykuĹ‚ do polubienia",
+            content="TreĹ›Ä‡",
             status="APPROVED",
         )
 
@@ -37,4 +37,4 @@ class LikeTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data['liked'])
-        self.assertFalse(Like.objects.filter(user=self.user, article=self.article).exists()) 
+        self.assertFalse(Like.objects.filter(user=self.user, article=self.article).exists())

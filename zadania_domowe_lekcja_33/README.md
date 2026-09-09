@@ -1,131 +1,196 @@
-# Testy jednostkowe/integracyjne — droga endpoint → DRF → model → baza danych
+# Lekcja 33 — Testy projektu NewsHub
 
-**Kontekst:** Testy napisane dla realnego projektu dyplomowego NewsHub (agregator
-wiadomości RSS, Django + Django REST Framework + PostgreSQL). Zadanie: pokryć
-testami każdy element na drodze między wybranym endpointem a bazą danych/modelami.
+Zadanie domowe z lekcji 33 zostało zaktualizowane na podstawie aktualnej wersji projektu dyplomowego NewsHub.
 
-**Uruchomienie (wewnątrz Dockera, projekt wymaga PostgreSQL):**
-```bash
-cd NewsHub-PRACA-DYPLOMOWA/newshub
-docker compose up -d
-docker compose exec web python manage.py test
-```
+Celem zestawu jest pokazanie testowania różnych warstw aplikacji: modeli, serializerów, endpointów REST API, logiki biznesowej, moderacji, polubień, źródeł RSS, scraperów oraz automatycznej kategoryzacji.
 
-**Wynik: 38 testów, wszystkie przechodzą.**
+## Mapowanie plików testowych na warstwy aplikacji
+
+### 1. `test_serializers.py` — warstwa Serializer
+
+Testy sprawdzają `ArticleSerializer` bezpośrednio, bez przechodzenia przez cały endpoint.
+
+Zakres obejmuje m.in.:
+
+- poprawność serializacji pól artykułu,
+- walidację danych wejściowych,
+- pola wymagane,
+- relacje z kategoriami i tagami,
+- zachowanie pól tylko do odczytu,
+- ochronę pól sterowanych przez backend,
+- poprawność danych zwracanych przez serializer.
+
+Liczba testów: **11**
+
+### 2. `test_api.py` — warstwa REST API
+
+Testy sprawdzają publiczne API artykułów przez `APIClient`.
+
+Zakres:
+
+- poprawność odpowiedzi endpointu,
+- filtrowanie danych widocznych publicznie,
+- zachowanie endpointu zgodnie z aktualną logiką aplikacji.
+
+Liczba testów: **1**
+
+### 3. `test_validation.py` — walidacja danych
+
+Testy sprawdzają walidację danych przesyłanych do aplikacji.
+
+Zakres obejmuje:
+
+- brak wymaganych pól,
+- niepoprawne dane,
+- walidację tytułu,
+- walidację treści artykułu.
+
+Liczba testów: **4**
+
+### 4. `test_submission.py` — pełny przepływ zgłaszania artykułu
+
+Testy sprawdzają cały proces zgłoszenia artykułu:
+
+`request -> permission -> serializer -> model -> database -> signal`
+
+Zakres:
+
+- brak dostępu dla użytkownika anonimowego,
+- możliwość zgłoszenia artykułu przez użytkownika zalogowanego,
+- zapis artykułu ze statusem `PENDING`,
+- powiązanie artykułu z użytkownikiem,
+- automatyczne utworzenie powiadomienia przez sygnał Django.
+
+Liczba testów: **3**
+
+### 5. `test_models.py` — warstwa Model / ORM
+
+Testy sprawdzają zachowanie modeli bezpośrednio na poziomie Django ORM.
+
+Zakres:
+
+- tworzenie obiektów,
+- wartości domyślne,
+- metody modelu,
+- zachowanie danych zapisanych w bazie.
+
+Liczba testów: **2**
+
+### 6. `sources_tests.py` — źródła RSS i logika biznesowa
+
+To największa grupa testów w zestawie.
+
+Sprawdzane są m.in.:
+
+- tworzenie źródła RSS,
+- unikalność `rss_url`,
+- domyślna aktywność źródła,
+- sortowanie źródeł,
+- poziomy zaufania `TRUSTED`, `NORMAL`, `BLOCKED`,
+- określanie statusu artykułu,
+- blokowanie nieaktywnych i zablokowanych źródeł,
+- pobieranie artykułów z RSS,
+- tworzenie artykułów ze statusem `APPROVED` lub `PENDING`,
+- obsługa daty publikacji,
+- fallback z `published` do `updated`.
+
+Liczba testów: **20**
+
+### 7. `test_like.py` — logika polubień
+
+Testy sprawdzają endpoint:
+
+`/api/articles/<id>/like/`
+
+Zakres:
+
+- użytkownik anonimowy nie może polubić artykułu,
+- użytkownik zalogowany może dodać polubienie,
+- ponowne wywołanie endpointu usuwa polubienie,
+- poprawność zmian w bazie danych.
+
+Liczba testów: **3**
+
+### 8. `test_admin_moderation.py` — moderacja przez Django Admin
+
+Testy sprawdzają custom actions w panelu administracyjnym.
+
+Zakres:
+
+- zatwierdzanie artykułów,
+- odrzucanie artykułów,
+- poprawność zmiany statusu obiektu.
+
+Liczba testów: **3**
+
+### 9. `test_categorization.py` — automatyczna kategoryzacja artykułów
+
+Testy sprawdzają logikę automatycznego przypisywania kategorii.
+
+Zakres obejmuje:
+
+- wybór kategorii na podstawie treści,
+- obsługę wyniku AI,
+- mechanizm fallback,
+- zachowanie przy braku poprawnej odpowiedzi,
+- poprawność normalizacji danych.
+
+Liczba testów: **7**
+
+### 10. `test_scrapers.py` — scrapery artykułów
+
+Testy sprawdzają logikę pobierania danych z obsługiwanych serwisów.
+
+Zakres:
+
+- rozpoznawanie obsługiwanych domen,
+- odrzucanie nieobsługiwanej domeny,
+- ekstrakcję tytułu i treści,
+- obsługę brakujących danych,
+- wybór odpowiedniego scrapera,
+- pobranie strony i przekazanie danych do parsera.
+
+Liczba testów: **6**
+
+### 11. `test_url_import.py` — import artykułu z adresu URL
+
+Testy sprawdzają endpoint importujący dane artykułu z podanego adresu URL.
+
+Zakres:
+
+- poprawne żądanie,
+- walidację URL,
+- obsługę nieobsługiwanej domeny,
+- pobieranie danych przez scraper,
+- integrację z automatyczną kategoryzacją.
+
+Liczba testów: **5**
 
 ---
 
-## Wybrany endpoint jako przykład: `POST /api/articles/` (zgłoszenie artykułu)
+## Podsumowanie liczby testów
 
-Droga tego żądania przez warstwy aplikacji:
-
-```
-URL (core/urls.py)
-   ↓
-View: ArticleViewSet.create() (articles/views.py)
-   ↓
-Permission: IsAuthenticated
-   ↓
-Serializer: ArticleSerializer (articles/serializers.py) — walidacja danych wejściowych
-   ↓
-perform_create() — logika biznesowa (wymusza status=PENDING, submitted_by=request.user)
-   ↓
-Model: Article (articles/models.py) — zapis do bazy danych (PostgreSQL)
-   ↓
-Signal: post_save → tworzy Notification (articles/signals.py)
-```
-
-Każdy z tych elementów ma dedykowany plik testowy, opisany niżej.
-
----
-
-## Mapowanie plików testowych na elementy drogi
-
-### 1. `test_serializers.py` — warstwa Serializer (izolowana, bez przechodzenia przez cały endpoint)
-
-Testuje `ArticleSerializer` bezpośrednio, w oderwaniu od widoku:
-- czy zwraca wszystkie zadeklarowane pola
-- czy zagnieżdżone pola (`category_detail`, `tags_detail`) poprawnie serializują
-  powiązane obiekty, a nie tylko ich ID
-- **czy `read_only_fields` faktycznie blokują ustawienie pól `status`,
-  `submitted_by`, `source` przez dane wejściowe** — kluczowy test bezpieczeństwa,
-  sprawdzający czy użytkownik nie może sam sobie zatwierdzić artykułu
-- czy walidacja wymaganych pól (`title`, `content`) działa na poziomie samego
-  serializera
-
-### 2. `test_api.py` i `test_validation.py` — warstwa View/Endpoint
-
-Testują pełną drogę żądania HTTP przez `APIClient`:
-- poprawne kody odpowiedzi (200, 404)
-- publiczne API pokazuje tylko artykuły ze statusem `APPROVED`
-- walidacja na poziomie całego endpointu (brakujące pola, niepoprawny URL)
-  — to samo co `test_serializers.py`, ale sprawdzone "z zewnątrz", przez
-  rzeczywiste zapytanie HTTP, a nie bezpośrednie wywołanie klasy serializera
-
-### 3. `test_submission.py` — pełny przepływ: endpoint → permission → serializer → model → signal
-
-Testuje cały łańcuch na raz:
-- anonimowy użytkownik nie może zgłosić artykułu (401 — permission)
-- zalogowany użytkownik może zgłosić artykuł, który zapisuje się ze statusem
-  `PENDING` i poprawnym `submitted_by` (cała droga do bazy danych)
-- zgłoszenie artykułu **automatycznie** tworzy `Notification` przez sygnał
-  `post_save` (element poza głównym przepływem żądanie-odpowiedź)
-
-### 4. `test_models.py` — warstwa Model / baza danych
-
-Testuje bezpośrednio warstwę ORM, bez przechodzenia przez API:
-- poprawność tworzenia obiektów i wartości domyślnych (np. `status="PENDING"`)
-- metody `__str__`
-- sortowanie (`ordering` z klasy `Meta`)
-
-### 5. `sources_tests.py` — warstwa Model / baza danych (ograniczenia integralności)
-
-Testuje model `Source`, w tym ograniczenie na poziomie **samej bazy danych**:
-- `unique=True` na polu `rss_url` — próba dodania duplikatu wywołuje
-  `IntegrityError` bezpośrednio z warstwy bazy danych, nie z walidacji Django
-
-### 6. `test_auth.py` — warstwa autoryzacji (przed dotarciem do endpointu głównego)
-
-Testuje endpointy Djoser/SimpleJWT, przez które musi przejść użytkownik, zanim
-w ogóle uzyska dostęp do zapisu w `/api/articles/`:
-- rejestracja, siła hasła (walidacja na poziomie Django `AUTH_PASSWORD_VALIDATORS`)
-- logowanie i wydanie tokenu JWT
-- odświeżanie tokenu (refresh)
-
-### 7. `test_like.py` — analogiczna droga dla innego endpointu (`/api/articles/<id>/like/`)
-
-Ten sam wzorzec (endpoint → permission → model → baza), zastosowany do innej
-funkcjonalności — polubień, w tym ograniczenie `unique_together` na poziomie
-modelu `Like` (nie da się polubić tego samego artykułu dwukrotnie).
-
-### 8. `test_admin_moderation.py` — alternatywna "droga" do modelu: przez Django Admin
-
-Pokazuje, że do tego samego modelu `Article` można dotrzeć inną ścieżką niż
-REST API — przez panel administracyjny i jego custom actions
-(`approve_articles`, `reject_articles`), również przetestowaną end-to-end.
-
----
-
-## Podsumowanie liczby testów wg elementu drogi
-
-| Element drogi | Plik(i) | Liczba testów |
-|---|---|---|
-| Model / baza danych | `test_models.py`, `sources_tests.py` | 11 |
-| Serializer (izolowany) | `test_serializers.py` | 5 |
-| View / Endpoint (przez HTTP) | `test_api.py`, `test_validation.py` | 7 |
-| Pełny przepływ + Signal | `test_submission.py` | 3 |
-| Autoryzacja (JWT) | `test_auth.py` | 5 |
-| Endpoint funkcyjny + logika biznesowa | `test_like.py` | 3 |
-| Alternatywna droga (Django Admin) | `test_admin_moderation.py` | 4 |
-| **RAZEM** | | **38** |
-
----
+| Plik | Liczba testów |
+|---|---:|
+| `sources_tests.py` | 20 |
+| `test_admin_moderation.py` | 3 |
+| `test_api.py` | 1 |
+| `test_categorization.py` | 7 |
+| `test_like.py` | 3 |
+| `test_models.py` | 2 |
+| `test_scrapers.py` | 6 |
+| `test_serializers.py` | 11 |
+| `test_submission.py` | 3 |
+| `test_url_import.py` | 5 |
+| `test_validation.py` | 4 |
+| **RAZEM** | **65** |
 
 ## Wniosek
 
-Testowanie każdego elementu z osobna (Model, Serializer) pozwala szybko
-zlokalizować przyczynę błędu — jeśli padnie test na poziomie Serializera,
-wiadomo że problem jest w walidacji/reprezentacji danych, a nie np. w logice
-widoku czy uprawnieniach. Jednocześnie testy end-to-end (pełny przepływ przez
-`APIClient`) potwierdzają, że wszystkie warstwy poprawnie współpracują ze sobą
-jako całość — obie perspektywy się uzupełniają.
+Testowanie poszczególnych warstw aplikacji pozwala szybko określić miejsce wystąpienia błędu.
+
+Testy modeli i serializerów sprawdzają pojedyncze elementy systemu w izolacji, natomiast testy wykonywane przez `APIClient` potwierdzają współpracę wielu warstw aplikacji jednocześnie.
+
+Dodatkowe testy logiki RSS, scraperów, importu URL i automatycznej kategoryzacji sprawdzają własną logikę biznesową projektu NewsHub.
+
+Zestaw z lekcji 33 zawiera obecnie **65 testów**, natomiast pełny projekt NewsHub przechodzi **68 testów**.
