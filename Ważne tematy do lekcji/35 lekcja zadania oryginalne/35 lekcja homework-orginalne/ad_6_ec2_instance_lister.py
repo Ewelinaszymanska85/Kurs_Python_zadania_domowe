@@ -1,5 +1,6 @@
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
+from collections import Counter
 
 
 def list_ec2_instances(region: str = "eu-central-1") -> list[dict]:
@@ -35,7 +36,10 @@ def list_ec2_instances(region: str = "eu-central-1") -> list[dict]:
                 f"Public IP: {instance['public_ip']}"
             )
 
-        print(f"\n[SUMMARY] Liczba instancji: {len(instances)}")
+        state_counts = Counter(instance["state"] for instance in instances)
+        summary = ", ".join(f"{state}: {count}" for state, count in state_counts.items())
+
+        print(f"\n[SUMMARY] Liczba instancji: {len(instances)} ({summary})")
         return instances
 
     except NoCredentialsError:

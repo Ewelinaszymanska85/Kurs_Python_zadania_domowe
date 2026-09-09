@@ -30,6 +30,8 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
 
     stopped_instances = []
 
+    logging.info("Uruchamiam scheduler AutoStop | region=%s", region)
+
     try:
         response = ec2.describe_instances(
             Filters=[
@@ -73,6 +75,11 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
                     f"[STOP] {instance_id} | AutoStop=true"
                 )
 
+        logging.info(
+            "Scheduler zakończony | zatrzymano %d instancji",
+            len(stopped_instances),
+        )
+
         print(
             f"[SUMMARY] Zatrzymano instancji: "
             f"{len(stopped_instances)}"
@@ -81,6 +88,7 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
         return stopped_instances
 
     except NoCredentialsError:
+        logging.error("Brak danych uwierzytelniających AWS.")
         print("[ERROR] Brak danych uwierzytelniających AWS.")
 
     except ClientError as exc:
@@ -88,9 +96,11 @@ def auto_stop_instances(region: str = "eu-central-1") -> list[str]:
             "Message",
             "Nieznany błąd AWS",
         )
+        logging.error("Błąd AWS: %s", message)
         print(f"[AWS ERROR] {message}")
 
     except BotoCoreError as exc:
+        logging.error("Błąd komunikacji z AWS: %s", exc)
         print(f"[ERROR] Błąd komunikacji z AWS: {exc}")
 
     return []

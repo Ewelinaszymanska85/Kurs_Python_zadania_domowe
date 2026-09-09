@@ -10,17 +10,21 @@ def sync_s3_buckets(
     s3 = boto3.client("s3")
 
     try:
-        response = s3.list_objects_v2(
-            Bucket=source_bucket,
-        )
+        paginator = s3.get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=source_bucket)
 
-        objects = response.get("Contents", [])
+        objects = [
+            obj
+            for page in pages
+            for obj in page.get("Contents", [])
+        ]
 
         if not objects:
             print("[INFO] Bucket źródłowy jest pusty.")
             return 0
 
         copied = 0
+        failed = 0
 
         print("=== S3 MULTI-REGION SYNC ===")
         print(f"Źródło: {source_bucket}")
@@ -35,16 +39,22 @@ def sync_s3_buckets(
                 "Key": key,
             }
 
-            s3.copy_object(
-                CopySource=copy_source,
-                Bucket=destination_bucket,
-                Key=key,
-            )
+            try:
+                s3.copy_object(
+                    CopySource=copy_source,
+                    Bucket=destination_bucket,
+                    Key=key,
+                )
 
-            copied += 1
-            print(f"[COPY] {key}")
+                copied += 1
+                print(f"[COPY] {key}")
 
-        print(f"\n[OK] Skopiowano obiektów: {copied}")
+            except ClientError as exc:
+                failed += 1
+                message = exc.response["Error"].get("Message", "Nieznany błąd")
+                print(f"[FAILED] {key}: {message}")
+
+        print(f"\n[OK] Skopiowano obiektów: {copied} | Błędów: {failed}")
         return copied
 
     except NoCredentialsError:

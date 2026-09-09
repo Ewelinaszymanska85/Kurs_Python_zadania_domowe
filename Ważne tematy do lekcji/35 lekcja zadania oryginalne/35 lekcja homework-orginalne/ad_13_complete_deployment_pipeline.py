@@ -20,6 +20,7 @@ class DeploymentPipeline:
 
     def __init__(self, config: DeploymentConfig) -> None:
         self.config = config
+        self.deployed = False
 
     def run_command(self, command: list[str], step_name: str) -> None:
         print(f"[RUN] {step_name}")
@@ -67,6 +68,7 @@ class DeploymentPipeline:
             f"[SIMULATION] Deployment przez SSH "
             f"na EC2: {self.config.ec2_host}"
         )
+        self.deployed = True
 
     def health_check(self) -> bool:
         print(f"[CHECK] {self.config.health_url}")
@@ -115,10 +117,13 @@ class DeploymentPipeline:
 
         except subprocess.CalledProcessError as exc:
             print(
-                f"[ERROR] Pipeline przerwany. "
+                f"[ERROR] Pipeline przerwany na etapie przed deploymentem. "
                 f"Exit code: {exc.returncode}"
             )
-            self.rollback()
+
+            if self.deployed:
+                self.rollback()
+
             return False
 
         print("[SUCCESS] Deployment zakończony pomyślnie.")

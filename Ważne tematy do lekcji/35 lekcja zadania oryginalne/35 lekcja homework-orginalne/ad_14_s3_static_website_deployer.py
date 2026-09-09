@@ -102,6 +102,16 @@ class S3StaticWebsiteDeployer:
 
         return uploaded
 
+    def get_website_url(self) -> str:
+        """Buduje poprawny URL strony statycznej dla danego regionu."""
+        if self.region == "us-east-1":
+            return f"http://{self.bucket_name}.s3-website-us-east-1.amazonaws.com"
+
+        return (
+            f"http://{self.bucket_name}.s3-website."
+            f"{self.region}.amazonaws.com"
+        )
+
     def deploy(self, directory: str) -> None:
         print("=== S3 STATIC WEBSITE DEPLOYMENT ===")
 
@@ -110,13 +120,8 @@ class S3StaticWebsiteDeployer:
 
         uploaded = self.upload_files(directory)
 
-        website_url = (
-            f"http://{self.bucket_name}.s3-website."
-            f"{self.region}.amazonaws.com"
-        )
-
         print(f"\n[OK] Wysłano plików: {uploaded}")
-        print(f"[URL] {website_url}")
+        print(f"[URL] {self.get_website_url()}")
 
 
 def parse_arguments() -> argparse.Namespace:

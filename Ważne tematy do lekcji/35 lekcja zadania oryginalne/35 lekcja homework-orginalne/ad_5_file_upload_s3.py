@@ -25,7 +25,9 @@ def upload_jpg_files(
     s3 = boto3.client("s3")
     uploaded_count = 0
 
-    jpg_files = sorted(directory.glob("*.jpg"))
+    jpg_files = sorted(
+        set(directory.glob("*.jpg")) | set(directory.glob("*.JPG"))
+    )
 
     if not jpg_files:
         print("[INFO] Nie znaleziono plików JPG.")

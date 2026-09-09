@@ -3,7 +3,7 @@ from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 
 def list_aws_regions() -> None:
-    """Pobiera i wyświetla dostępne regiony AWS EC2."""
+    """Pobiera i wyświetla dostępne regiony AWS EC2 wraz z endpointami."""
     try:
         ec2 = boto3.client("ec2", region_name="eu-central-1")
 
@@ -18,9 +18,10 @@ def list_aws_regions() -> None:
 
         for number, region in enumerate(regions, start=1):
             name = region["RegionName"]
+            endpoint = region.get("Endpoint", "brak endpointu")
             status = region.get("OptInStatus", "unknown")
 
-            print(f"{number:02}. {name:<20} | status: {status}")
+            print(f"{number:02}. {name:<20} | {endpoint:<35} | status: {status}")
 
     except NoCredentialsError:
         print("[ERROR] Nie znaleziono danych logowania AWS.")

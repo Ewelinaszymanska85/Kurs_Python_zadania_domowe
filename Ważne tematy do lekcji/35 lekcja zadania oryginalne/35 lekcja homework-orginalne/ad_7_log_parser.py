@@ -1,8 +1,10 @@
+import re
 from collections import Counter
 from pathlib import Path
 
 
 LOG_LEVELS = ("ERROR", "WARNING", "INFO")
+LOG_PATTERN = re.compile(r"^\[.*?\]\s*(ERROR|WARNING|INFO)\b")
 
 
 def parse_log_file(file_path: str) -> dict[str, int]:
@@ -19,12 +21,9 @@ def parse_log_file(file_path: str) -> dict[str, int]:
 
     with path.open("r", encoding="utf-8") as file:
         for line in file:
-            normalized = line.upper()
-
-            for level in LOG_LEVELS:
-                if level in normalized:
-                    counter[level] += 1
-                    break
+            match = LOG_PATTERN.match(line.strip())
+            if match:
+                counter[match.group(1)] += 1
 
     result = {
         level: counter.get(level, 0)

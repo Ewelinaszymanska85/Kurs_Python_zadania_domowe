@@ -34,6 +34,14 @@ def check_service(name: str, url: str, timeout: int = 5) -> dict:
             "available": False,
         }
 
+    except requests.ConnectionError:
+        return {
+            "name": name,
+            "url": url,
+            "error": "Brak połączenia z serwerem.",
+            "available": False,
+        }
+
     except requests.RequestException as exc:
         return {
             "name": name,
@@ -44,15 +52,12 @@ def check_service(name: str, url: str, timeout: int = 5) -> dict:
 
 
 def run_health_check() -> None:
-    """Uruchamia health check dla wszystkich skonfigurowanych serwisów."""
+    """Uruchamia health check dla wszystkich skonfigurowanych serwisów i wyświetla podsumowanie."""
     print("=== HEALTH CHECK ===")
 
-    for service in SERVICES:
-        result = check_service(
-            service["name"],
-            service["url"],
-        )
+    results = [check_service(service["name"], service["url"]) for service in SERVICES]
 
+    for result in results:
         if result["available"]:
             print(
                 f"[OK] {result['name']} | "
@@ -60,10 +65,14 @@ def run_health_check() -> None:
                 f"{result['response_time']} s"
             )
         else:
-            print(
-                f"[ERROR] {result['name']} | "
-                f"{result.get('error', 'Serwis zwrócił niepoprawny status')}"
-            )
+            error_msg = result.get("error") or f"HTTP {result.get('status_code', '???')}"
+            print(f"[ERROR] {result['name']} | {error_msg}")
+
+    available_count = sum(1 for r in results if r["available"])
+    total_count = len(results)
+
+    print("=" * 21)
+    print(f"Dostępne: {available_count}/{total_count}")
 
 
 if __name__ == "__main__":

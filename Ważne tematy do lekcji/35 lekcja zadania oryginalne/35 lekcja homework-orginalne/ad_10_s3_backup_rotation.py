@@ -30,7 +30,7 @@ def upload_backup_to_s3(
     bucket_name: str,
     prefix: str = "backups/",
 ) -> str:
-    """Wysyła backup do S3."""
+    """Wysyła backup do S3 i usuwa lokalną kopię ZIP."""
     s3 = boto3.client("s3")
     object_key = f"{prefix}{backup_path.name}"
 
@@ -41,6 +41,10 @@ def upload_backup_to_s3(
     )
 
     print(f"[UPLOAD] {backup_path.name} -> s3://{bucket_name}/{object_key}")
+
+    backup_path.unlink()
+    print(f"[CLEANUP] Usunięto lokalny plik: {backup_path.name}")
+
     return object_key
 
 
@@ -53,22 +57,19 @@ def rotate_old_backups(
     s3 = boto3.client("s3")
     cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
 
-    response = s3.list_objects_v2(
-        Bucket=bucket_name,
-        Prefix=prefix,
-    )
-
+    paginator = s3.get_paginator("list_objects_v2")
     deleted = 0
 
-    for obj in response.get("Contents", []):
-        if obj["LastModified"] < cutoff:
-            s3.delete_object(
-                Bucket=bucket_name,
-                Key=obj["Key"],
-            )
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+        for obj in page.get("Contents", []):
+            if obj["LastModified"] < cutoff:
+                s3.delete_object(
+                    Bucket=bucket_name,
+                    Key=obj["Key"],
+                )
 
-            deleted += 1
-            print(f"[DELETE] {obj['Key']}")
+                deleted += 1
+                print(f"[DELETE] {obj['Key']}")
 
     return deleted
 

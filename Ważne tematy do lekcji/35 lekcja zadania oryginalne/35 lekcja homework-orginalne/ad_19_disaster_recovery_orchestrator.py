@@ -39,6 +39,16 @@ class DisasterRecoveryOrchestrator:
                 ensure_ascii=False,
             )
 
+    def _update_status(self, snapshot_id: str, status: str) -> None:
+        snapshots = self._load_snapshots()
+
+        for snapshot in snapshots:
+            if snapshot["snapshot_id"] == snapshot_id:
+                snapshot["status"] = status
+                break
+
+        self._save_snapshots(snapshots)
+
     def create_snapshot(
         self,
         resource_type: str,
@@ -69,6 +79,8 @@ class DisasterRecoveryOrchestrator:
         return snapshot_id
 
     def store_backup_s3(self, snapshot_id: str) -> None:
+        self._update_status(snapshot_id, "BACKED_UP")
+
         logging.info(
             "Snapshot %s zapisany w S3 w regionie %s",
             snapshot_id,
@@ -99,6 +111,8 @@ class DisasterRecoveryOrchestrator:
             )
             print(f"[ERROR] Snapshot nie istnieje: {snapshot_id}")
             return False
+
+        self._update_status(snapshot_id, "RESTORED")
 
         logging.info(
             "Odtworzono zasób %s z snapshotu %s",

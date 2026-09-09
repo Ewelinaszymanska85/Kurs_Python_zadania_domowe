@@ -29,7 +29,12 @@ class AWSCostCalculator:
         ]
 
     def calculate_instance_cost(self, instance: dict) -> float:
-        """Oblicza szacowany koszt pojedynczej instancji."""
+        """Oblicza szacowany koszt pojedynczej instancji (tylko running)."""
+        state = instance.get("State", {}).get("Name")
+
+        if state != "running":
+            return 0.0
+
         instance_type = instance["InstanceType"]
         launch_time = instance["LaunchTime"]
 
