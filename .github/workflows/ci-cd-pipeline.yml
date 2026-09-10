@@ -1,0 +1,129 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Testy unit + integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v4
+
+      - name: Ustaw Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Zainstaluj zaleznosci
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Uruchom testy unit
+        run: pytest tests/unit --cov=app --cov-report=xml
+
+      - name: Uruchom testy integration
+        run: pytest tests/integration
+
+      - name: Wyslij powiadomienie Slack o wyniku testow
+        if: always()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "Testy dla ${{ github.repository }} (${{ github.ref_name }}): ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  deploy-staging:
+    name: Deployment do staging
+    needs: test
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v4
+
+      - name: Konfiguruj dane AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Deploy do staging (Auto Scaling Group refresh)
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name lesson36-asg-staging \
+            --preferences MinHealthyPercentage=50
+
+      - name: Powiadomienie Slack o deploymencie staging
+        if: always()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "Deployment do staging (${{ github.repository }}): ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  deploy-production:
+    name: Deployment do produkcji
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://app.yourdomain.com
+
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v4
+
+      - name: Konfiguruj dane AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Deploy do produkcji (rolling update)
+        id: deploy
+        run: |
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name lesson36-asg-production \
+            --preferences MinHealthyPercentage=50 \
+            --query 'InstanceRefreshId' --output text)
+          echo "refresh_id=$REFRESH_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Sprawdz status deploymentu
+        run: |
+          aws autoscaling describe-instance-refreshes \
+            --auto-scaling-group-name lesson36-asg-production \
+            --instance-refresh-ids ${{ steps.deploy.outputs.refresh_id }}
+
+      - name: Rollback w razie niepowodzenia
+        if: failure()
+        run: |
+          aws autoscaling cancel-instance-refresh \
+            --auto-scaling-group-name lesson36-asg-production
+
+      - name: Powiadomienie Slack o deploymencie produkcyjnym
+        if: always()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "Deployment do PRODUKCJI (${{ github.repository }}): ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
