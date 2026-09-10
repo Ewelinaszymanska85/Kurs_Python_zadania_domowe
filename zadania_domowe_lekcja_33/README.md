@@ -150,7 +150,7 @@ Zakres:
 - wybór odpowiedniego scrapera,
 - pobranie strony i przekazanie danych do parsera.
 
-Liczba testów: **6**
+Liczba testów: **9**
 
 ### 11. `test_url_import.py` — import artykułu z adresu URL
 
@@ -178,12 +178,12 @@ Liczba testów: **5**
 | `test_categorization.py` | 7 |
 | `test_like.py` | 3 |
 | `test_models.py` | 2 |
-| `test_scrapers.py` | 6 |
+| `test_scrapers.py` | 9 |
 | `test_serializers.py` | 11 |
 | `test_submission.py` | 3 |
 | `test_url_import.py` | 5 |
 | `test_validation.py` | 4 |
-| **RAZEM** | **65** |
+| **RAZEM** | **68** |
 
 ## Wniosek
 
@@ -193,4 +193,4 @@ Testy modeli i serializerów sprawdzają pojedyncze elementy systemu w izolacji,
 
 Dodatkowe testy logiki RSS, scraperów, importu URL i automatycznej kategoryzacji sprawdzają własną logikę biznesową projektu NewsHub.
 
-Zestaw z lekcji 33 zawiera obecnie **65 testów**, natomiast pełny projekt NewsHub przechodzi **68 testów**.
+Zestaw z lekcji 33 zawiera obecnie **68 przypadków testowych wykonywanych przez pytest**. Pełny projekt NewsHub również przechodzi **68/68 testów**.
