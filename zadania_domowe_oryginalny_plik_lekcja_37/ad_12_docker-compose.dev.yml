@@ -1,0 +1,6 @@
+services:
+  backend:
+    volumes:
+      - ./ad_12_app.py:/app/app.py
+    environment:
+      ENVIRONMENT: development

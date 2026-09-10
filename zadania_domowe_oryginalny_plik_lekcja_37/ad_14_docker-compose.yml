@@ -1,0 +1,20 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ad_14_Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ad_14_Dockerfile
+    command: ["celery", "-A", "ad_14_tasks", "worker", "--loglevel=info", "--pool=solo"]
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine

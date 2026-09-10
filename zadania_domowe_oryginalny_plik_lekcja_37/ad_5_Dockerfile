@@ -1,0 +1,19 @@
+# --- Etap 1: budowanie zależności ---
+FROM python:3.12 AS builder
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir --target=/app/dependencies aiohttp
+
+# --- Etap 2: finalny, lekki obraz ---
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/dependencies /usr/local/lib/python3.12/site-packages
+
+COPY ad_3_app.py app.py
+
+EXPOSE 8000
+
+CMD ["python", "app.py"]

@@ -1,0 +1,7 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ad_12_Dockerfile
+    ports:
+      - "8000:8000"

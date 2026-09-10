@@ -1,0 +1,47 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ad_15_Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: booksdb
+      DB_USER: bookuser
+      DB_PASSWORD: bookpassword
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: booksdb
+      POSTGRES_USER: bookuser
+      POSTGRES_PASSWORD: bookpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookuser -d booksdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./ad_15_prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus

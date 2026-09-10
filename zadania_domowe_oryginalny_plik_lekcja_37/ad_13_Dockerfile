@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir aiohttp asyncpg
+
+COPY ad_13_users_service.py ad_13_posts_service.py ad_13_api_gateway.py ./
+
+CMD ["python", "-u", "app.py"]

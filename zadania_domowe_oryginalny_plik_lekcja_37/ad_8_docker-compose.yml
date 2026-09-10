@@ -1,0 +1,16 @@
+services:
+  container-a:
+    image: alpine:latest
+    command: sh -c "apk add --no-cache curl && tail -f /dev/null"
+    networks:
+      - custom-network
+
+  container-b:
+    image: alpine:latest
+    command: sh -c "apk add --no-cache curl && tail -f /dev/null"
+    networks:
+      - custom-network
+
+networks:
+  custom-network:
+    driver: bridge

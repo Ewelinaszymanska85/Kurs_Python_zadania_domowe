@@ -1,0 +1,67 @@
+services:
+  users-service:
+    build:
+      context: .
+      dockerfile: ad_13_Dockerfile
+    command: ["python", "-u", "ad_13_users_service.py"]
+    environment:
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_NAME: usersdb
+      DB_USER: usersuser
+      DB_PASSWORD: userspassword
+    depends_on:
+      users-db:
+        condition: service_healthy
+
+  posts-service:
+    build:
+      context: .
+      dockerfile: ad_13_Dockerfile
+    command: ["python", "-u", "ad_13_posts_service.py"]
+    environment:
+      DB_HOST: posts-db
+      DB_PORT: 5432
+      DB_NAME: postsdb
+      DB_USER: postsuser
+      DB_PASSWORD: postspassword
+    depends_on:
+      posts-db:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ad_13_Dockerfile
+    command: ["python", "-u", "ad_13_api_gateway.py"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - users-service
+      - posts-service
+
+  users-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: usersdb
+      POSTGRES_USER: usersuser
+      POSTGRES_PASSWORD: userspassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usersuser -d usersdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  posts-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: postsdb
+      POSTGRES_USER: postsuser
+      POSTGRES_PASSWORD: postspassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postsuser -d postsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s

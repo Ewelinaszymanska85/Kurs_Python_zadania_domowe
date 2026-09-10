@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir aiohttp celery redis
+
+COPY ad_14_tasks.py ad_14_backend.py ./
+
+CMD ["python", "-u", "ad_14_backend.py"]

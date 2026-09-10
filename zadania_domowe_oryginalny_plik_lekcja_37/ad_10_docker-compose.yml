@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ad_10_Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: booksdb
+      DB_USER: bookuser
+      DB_PASSWORD: bookpassword
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: booksdb
+      POSTGRES_USER: bookuser
+      POSTGRES_PASSWORD: bookpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookuser -d booksdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
