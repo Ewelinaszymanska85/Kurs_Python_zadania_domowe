@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>System Rekomendacji Książek</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+        .book { border: 1px solid #ccc; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+        button { padding: 6px 12px; cursor: pointer; }
+        #recommendations { margin-top: 10px; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <h1>System Rekomendacji Książek</h1>
+    <div id="books"></div>
+    <h2>Rekomendacje</h2>
+    <div id="recommendations">Kliknij "Pokaż podobne" przy dowolnej książce.</div>
+
+    <script>
+        const API_URL = "http://localhost:8001";
+
+        async function loadBooks() {
+            const response = await fetch(`${API_URL}/books`);
+            const books = await response.json();
+
+            const container = document.getElementById("books");
+            container.innerHTML = books.map(book => `
+                <div class="book">
+                    <strong>${book.title}</strong><br>
+                    <small>${book.description}</small><br>
+                    <button onclick="getRecommendations(${book.id})">Pokaż podobne</button>
+                </div>
+            `).join("");
+        }
+
+        async function getRecommendations(bookId) {
+            const recDiv = document.getElementById("recommendations");
+            recDiv.innerHTML = "Ładowanie...";
+
+            let response = await fetch(`${API_URL}/recommendations/${bookId}`);
+            let data = await response.json();
+
+            if (data.source === "queued") {
+                recDiv.innerHTML = "Generowanie rekomendacji w tle...";
+
+                while (true) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const statusResponse = await fetch(`${API_URL}/recommendations/status/${data.task_id}`);
+                    const statusData = await statusResponse.json();
+
+                    if (statusData.status === "SUCCESS") {
+                        data = { recommendations: statusData.result.recommendations };
+                        break;
+                    }
+                }
+            }
+
+            recDiv.innerHTML = data.recommendations.map(book =>
+                `<div>${book.title} (podobieństwo: ${(book.similarity * 100).toFixed(1)}%)</div>`
+            ).join("");
+        }
+
+        loadBooks();
+    </script>
+</body>
+</html>

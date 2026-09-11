@@ -1,0 +1,61 @@
+services:
+  init-migrations:
+    build:
+      context: .
+      dockerfile: ad_19_Dockerfile
+    entrypoint: ["sh", "-c", "./wait_for_db.sh && python migrate.py"]
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+    depends_on:
+      database:
+        condition: service_healthy
+
+  init-superuser:
+    build:
+      context: .
+      dockerfile: ad_19_Dockerfile
+    entrypoint: ["sh", "-c", "./wait_for_db.sh && python create_superuser.py"]
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      SUPERUSER_USERNAME: admin
+      SUPERUSER_PASSWORD: SecurePass123
+    depends_on:
+      init-migrations:
+        condition: service_completed_successfully
+
+  backend:
+    build:
+      context: .
+      dockerfile: ad_19_Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+    depends_on:
+      init-superuser:
+        condition: service_completed_successfully
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
