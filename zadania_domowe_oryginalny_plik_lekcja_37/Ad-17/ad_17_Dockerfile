@@ -1,0 +1,11 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir aiohttp pytest pytest-asyncio
+
+COPY ad_17_app.py ad_17_test_app.py ./
+
+EXPOSE 8000
+
+CMD ["python", "-u", "ad_17_app.py"]

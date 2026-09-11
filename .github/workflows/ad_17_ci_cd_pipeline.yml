@@ -1,0 +1,40 @@
+name: Docker Build, Test and Push
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test-push:
+    name: Buduj, testuj i pushuj obraz Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v4
+
+      - name: Zbuduj obraz Docker
+        run: |
+          docker build \
+            -f zadania_domowe_oryginalny_plik_lekcja_37/Ad-17/ad_17_Dockerfile \
+            -t ewelina-lesson37-app:${{ github.sha }} \
+            zadania_domowe_oryginalny_plik_lekcja_37/Ad-17
+
+      - name: Uruchom testy w kontenerze
+        run: |
+          docker run --rm \
+            ewelina-lesson37-app:${{ github.sha }} \
+            python ad_17_test_app.py
+
+      - name: Zaloguj do Docker Hub
+        if: success()
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Otaguj i wypchnij obraz do Docker Hub
+        if: success()
+        run: |
+          docker tag ewelina-lesson37-app:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/lesson37-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/lesson37-app:latest
